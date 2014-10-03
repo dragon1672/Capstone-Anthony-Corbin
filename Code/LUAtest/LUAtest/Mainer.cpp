@@ -30,27 +30,7 @@ void main() {
 
 	Lua lua;
 	lua.LoadStandardLibraries();
-	auto t3 = lua.CreateFunction<int(int,std::string)>([](int a, std::string) -> int
-	{
-		return 10;
-	});
-	
 	lua.GetGlobalEnvironment().Set("cPrint",lua.CreateFunction<void(std::string)>([](std::string a) -> void { std::cout << "cPrint:" << a << std::endl; })); // make and add function
-	/*
-	std::cout << t3.Invoke(5,"a") << std::endl;
-	lua.RunScript(""
-		"cPrint('before sleep');\n"
-		"os.execute('sleep 1')\n"
-		"cPrint('after sleep');\n"
-		"\n"
-	"");
-	
-	std::cout << t3.Invoke(5,"a") << std::endl;
-	//*/
-
-
-
-
 
 	
 	auto newPie = lua.CreateFunction<LuaUserdata<Pie>()>(std::bind([](Lua lua) -> LuaUserdata<Pie> {
@@ -63,7 +43,8 @@ void main() {
 
 		return pieData;
 	}, lua));
-	auto pieObj = lua.CreateTable();
+
+	LuaTable pieObj = lua.CreateTable();
 	//const
 	pieObj.Set("new", newPie);
 	//make varable
@@ -73,40 +54,37 @@ void main() {
 		auto foo = new Mother();
 		auto userData = lua.CreateUserdata<Mother>(foo);
 
-		//register functions
 		userData.Bind("reset", &Mother::resetPie);
-		//userData.Bind("getPie", &Mother::getPie);
+		//userData.Bind("getPie", &Mother::getPie); // throws error because it isn't allowed type (primitive)
 
 		return userData;
 	}, lua));
-	auto footable = lua.CreateTable();
-	//const
-	footable.Set("new", newFoo);
-	//make varable
-	lua.GetGlobalEnvironment().Set("Mother", footable);
-	std::cout << 
-	lua.RunScript(""
-	/* trying out mother object
-		"local a = Mother:new();\n"
-		"a.getPie().make()\n"
-		"a.getPie().eat()\n"
-		"a.getPie().make()\n"
-		"cPrint(a.getPie().getPie());\n"
-		"a.reset();\n"
-		"cPrint(a.getPie().getPie());\n"
-		"\n"
-	/*/ // testing pie object, WORKS!
-		"local a = Pie:new()\n"
-		"local b = Pie:new()\n"
-		"a.make();\n"
-		"b.make();\n"
-		"a.make();\n"
-		"b.make();\n"
-		"a.make();\n"
-		"b.make();\n"
-		"a.eat()\n"
-		"cPrint(a.get())\n"
-		"cPrint(b.get())\n"
-	//*/
-	"");
+	LuaTable motherObject = lua.CreateTable();
+	motherObject.Set("new", newFoo);
+	lua.GetGlobalEnvironment().Set("Mother", motherObject);
+	std::string err = lua.RunScript(""
+		/* trying out mother object
+			"local a = Mother:new();\n"
+			"a.getPie().make()\n"
+			"a.getPie().eat()\n"
+			"a.getPie().make()\n"
+			"cPrint(a.getPie().getPie());\n"
+			"a.reset();\n"
+			"cPrint(a.getPie().getPie());\n"
+			"\n"
+		/*/ // testing pie object, WORKS!
+			"local a = Pie:new()\n"
+			"local b = Pie:new()\n"
+			"a.make();\n"
+			"b.make();\n"
+			"a.make();\n"
+			"b.make();\n"
+			"a.make();\n"
+			"b.make();\n"
+			"a.eat()\n"
+			"cPrint(a.get())\n"
+			"cPrint(b.get())\n"
+		//*/
+		"");
+	std::cout << err << std::endl;
 }
