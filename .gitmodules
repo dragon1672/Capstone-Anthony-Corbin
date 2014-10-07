@@ -1,6 +1,6 @@
-[submodule "Code/EngineProject"]
-	path = Code/EngineProject
-	url = https://anthony_corbin@bitbucket.org/anthony_corbin/c-game-engine.git
 [submodule "Code/MiddleWare"]
 	path = Code/MiddleWare
 	url = https://anthony_corbin@bitbucket.org/anthony_corbin/c-game-dev-middleware.git
+[submodule "Code/Engine"]
+	path = Code/Engine
+	url = https://anthony_corbin@bitbucket.org/anthony_corbin/c-game-engine.git
