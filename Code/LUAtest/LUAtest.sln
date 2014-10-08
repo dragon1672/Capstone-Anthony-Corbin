@@ -7,12 +7,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LUAtest", "LUAtest\LUAtest.
 		{45975324-0A0E-4989-8E08-B235E4F893CA} = {45975324-0A0E-4989-8E08-B235E4F893CA}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "..\..\Vendor\luacppinterface\lua\lua.vcxproj", "{7CC1250B-0680-4BCC-AAC8-92F5CF058816}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaCppInterface", "..\MiddleWare\luacppinterface\LuaCppInterface\LuaCppInterface.vcxproj", "{45975324-0A0E-4989-8E08-B235E4F893CA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaCppInterface", "..\..\Vendor\luacppinterface\LuaCppInterface\LuaCppInterface.vcxproj", "{45975324-0A0E-4989-8E08-B235E4F893CA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816} = {7CC1250B-0680-4BCC-AAC8-92F5CF058816}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "..\MiddleWare\luacppinterface\lua\lua.vcxproj", "{7CC1250B-0680-4BCC-AAC8-92F5CF058816}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,14 +25,6 @@ Global
 		{3279752F-0236-464B-A68D-9B1D0EC1360C}.Release|Win32.ActiveCfg = Release|Win32
 		{3279752F-0236-464B-A68D-9B1D0EC1360C}.Release|Win32.Build.0 = Release|Win32
 		{3279752F-0236-464B-A68D-9B1D0EC1360C}.Release|x64.ActiveCfg = Release|Win32
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|Win32.Build.0 = Debug|Win32
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|x64.ActiveCfg = Debug|x64
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|x64.Build.0 = Debug|x64
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|Win32.ActiveCfg = Release|Win32
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|Win32.Build.0 = Release|Win32
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|x64.ActiveCfg = Release|x64
-		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|x64.Build.0 = Release|x64
 		{45975324-0A0E-4989-8E08-B235E4F893CA}.Debug|Win32.ActiveCfg = Debug|Win32
 		{45975324-0A0E-4989-8E08-B235E4F893CA}.Debug|Win32.Build.0 = Debug|Win32
 		{45975324-0A0E-4989-8E08-B235E4F893CA}.Debug|x64.ActiveCfg = Debug|x64
@@ -44,6 +33,14 @@ Global
 		{45975324-0A0E-4989-8E08-B235E4F893CA}.Release|Win32.Build.0 = Release|Win32
 		{45975324-0A0E-4989-8E08-B235E4F893CA}.Release|x64.ActiveCfg = Release|x64
 		{45975324-0A0E-4989-8E08-B235E4F893CA}.Release|x64.Build.0 = Release|x64
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|Win32.Build.0 = Debug|Win32
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|x64.ActiveCfg = Debug|x64
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Debug|x64.Build.0 = Debug|x64
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|Win32.ActiveCfg = Release|Win32
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|Win32.Build.0 = Release|Win32
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|x64.ActiveCfg = Release|x64
+		{7CC1250B-0680-4BCC-AAC8-92F5CF058816}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
