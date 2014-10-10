@@ -3,4 +3,4 @@
 	url = https://anthony_corbin@bitbucket.org/anthony_corbin/c-game-dev-middleware.git
 [submodule "Code/Engine"]
 	path = Code/Engine
-	url = https://anthony_corbin@bitbucket.org/anthony_corbin/c-game-engine.git
+url=https://github.com/dragon1672/C-Game-Engine
