@@ -1,4 +1,5 @@
-#include <Qt/qapplication.h>
+#include <QtWidgets/QApplication>
+#include <Engine/DebugTools/DebugMemHeader.h>
 
 
 int main(int argc, char * argv[]) {
