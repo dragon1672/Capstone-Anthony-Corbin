@@ -206,11 +206,15 @@ void main() {
 
 	std::string err = lua.RunScript(""
 		//"local a = Entity:new();\n"
-		"print(a.getMat().getPos())\n"
-		"print(a.getMat().getPos().getX())\n"
+		//"print(a.getMat().getPos())\n"
+		//"print(a.getMat().getPos().getX())\n"
 		"a.getMat().getPos().setX(5)\n"
-		"print(a.getMat().getPos().getX())\n"
+		//"print(a.getMat().getPos().getX())\n"
 		"local b = 5;\n"
+		"function addB(a)\n"
+		"b = b + 1;\n"
+		"  return a+b\n"
+		"end\n"
 		"\n"
 		"\n"
 		"\n"
@@ -220,5 +224,9 @@ void main() {
 	//auto test = lua.GetGlobalEnvironment().Get<float>("a.getMat().getPos().getX()");
 	//auto test = lua.GetGlobalEnvironment().Get<float>("b");
 	//std::cout << test << std::endl;
-	std::cout << a.mat.pos.x << std::endl;
+	//std::cout << a.mat.pos.x << std::endl;
+	//std::cout << lua.GetGlobalEnvironment().Get<float>("player.pos.X") << std::endl;
+	std::cout << lua.GetGlobalEnvironment().Get< LuaFunction<int(int)> >("addB").Invoke(4) << std::endl;
+	std::cout << lua.GetGlobalEnvironment().Get< LuaFunction<int(int)> >("addB").Invoke(4) << std::endl;
+	//std::cout << lua.GetGlobalEnvironment().Get<float>("b") << std::endl;
 }
