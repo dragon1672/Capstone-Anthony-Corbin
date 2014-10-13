@@ -1,0 +1,16 @@
+function ScriptComponent(r,g,b)
+	return {
+		start = function()
+			--fill me!!!!
+		end
+		earlyUpdate = function()
+			--fill me!!!!
+		end
+		update = function()
+			--fill me!!!!
+		end
+		lateupdate = function()
+			--fill me!!!!
+		end
+	}
+end
