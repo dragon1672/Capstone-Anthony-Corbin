@@ -215,23 +215,26 @@ void main() {
 		"b = b + 1;\n"
 		"  return a+b\n"
 		"end\n"
-
-		"function ScriptComponent()			\n"
-		"return {							\n"
-		"	start = function()				\n"
-		"		--fill me!!!!				\n"
-		"		end							\n"
-		"		earlyUpdate = function()	\n"
-		"		--fill me!!!!				\n"
-		"		end							\n"
-		"		update = function()			\n"
-		"		--fill me!!!!				\n"
-		"		end							\n"
-		"		lateupdate = function()		\n"
-		"		--fill me!!!!				\n"
-		"		end							\n"
-		"}									\n"
-		"end								\n"
+		""
+		""
+		"context = {}\n"
+		"context.asdf = 5;\n"
+		"context.start = function()\n"
+		"	print(context.asdf)\n"
+		"	return true\n"
+		"end\n"
+		"context.earlyUpdate = function()\n"
+		"	context.asdf = context.asdf+ 1;\n"
+		"	return true\n"
+		"end\n"
+		"context.update = function()\n"
+		"	print(context.asdf)\n"
+		"	return true\n"
+		"end\n"
+		"context.lateUpdate = function()\n"
+		"	--yay\n"
+		"	return true\n"
+		"end\n"
 		"\n"
 		"\n"
 		"\n"
@@ -244,6 +247,43 @@ void main() {
 	//std::cout << a.mat.pos.x << std::endl;
 	//std::cout << lua.GetGlobalEnvironment().Get<float>("player.pos.X") << std::endl;
 	std::cout << lua.GetGlobalEnvironment().Get< LuaFunction<int(int)> >("addB").Invoke(4) << std::endl;
-	std::cout << lua.GetGlobalEnvironment().Get< LuaFunction<int(int)> >("addB").Invoke(4) << std::endl;
+	auto obj = lua.GetGlobalEnvironment().Get<LuaTable>("context");
+	obj.Get<LuaFunction<bool()>>("start").Invoke();
+	for (int i=0;i<2;i++)
+	{
+		obj.Get<LuaFunction<bool()>>("earlyUpdate").Invoke();
+		obj.Get<LuaFunction<bool()>>("update").Invoke();
+		obj.Get<LuaFunction<bool()>>("lateUpdate").Invoke();
+	}
+
+	//same script run 2nd time
+	lua.RunScript(""
+		"context = {}\n"
+		"context.asdf = 5;\n"
+		"context.start = function()\n"
+		"	print(context.asdf)\n"
+		"	return true\n"
+		"end\n"
+		"context.earlyUpdate = function()\n"
+		"	context.asdf = context.asdf+ 1;\n"
+		"	return true\n"
+		"end\n"
+		"context.update = function()\n"
+		"	print(context.asdf)\n"
+		"	return true\n"
+		"end\n"
+		"context.lateUpdate = function()\n"
+		"	--yay\n"
+		"	return true\n"
+		"end\n"
+		"");
+	auto obj2 = lua.GetGlobalEnvironment().Get<LuaTable>("context");
+	obj2.Get<LuaFunction<bool()>>("start").Invoke();
+	for (int i=0;i<2;i++)
+	{
+		obj2.Get<LuaFunction<bool()>>("earlyUpdate").Invoke();
+		obj2.Get<LuaFunction<bool()>>("update").Invoke();
+		obj2.Get<LuaFunction<bool()>>("lateUpdate").Invoke();
+	}
 	//std::cout << lua.GetGlobalEnvironment().Get<float>("b") << std::endl;
 }
