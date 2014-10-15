@@ -1,8 +1,5 @@
 #include <iostream>
-#pragma warning( push )
-#pragma warning( disable : 4244 )
 #include <luacppinterface.h>
-#pragma  warning( pop )
 /*
 	Lua lua;
 	bool LoadLua() {
@@ -249,12 +246,6 @@ void main() {
 	std::cout << lua.GetGlobalEnvironment().Get< LuaFunction<int(int)> >("addB").Invoke(4) << std::endl;
 	auto obj = lua.GetGlobalEnvironment().Get<LuaTable>("context");
 	obj.Get<LuaFunction<bool()>>("start").Invoke();
-	for (int i=0;i<2;i++)
-	{
-		obj.Get<LuaFunction<bool()>>("earlyUpdate").Invoke();
-		obj.Get<LuaFunction<bool()>>("update").Invoke();
-		obj.Get<LuaFunction<bool()>>("lateUpdate").Invoke();
-	}
 
 	//same script run 2nd time
 	lua.RunScript(""
@@ -281,9 +272,15 @@ void main() {
 	obj2.Get<LuaFunction<bool()>>("start").Invoke();
 	for (int i=0;i<2;i++)
 	{
+		obj.Get<LuaFunction<bool()>>("earlyUpdate").Invoke();
 		obj2.Get<LuaFunction<bool()>>("earlyUpdate").Invoke();
+
+		obj.Get<LuaFunction<bool()>>("update").Invoke();
 		obj2.Get<LuaFunction<bool()>>("update").Invoke();
+
+		obj.Get<LuaFunction<bool()>>("lateUpdate").Invoke();
 		obj2.Get<LuaFunction<bool()>>("lateUpdate").Invoke();
 	}
 	//std::cout << lua.GetGlobalEnvironment().Get<float>("b") << std::endl;
+	std::cout << std::endl << std::endl << std::endl << sizeof(LuaTable) << std::endl;
 }
