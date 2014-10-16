@@ -106,7 +106,8 @@ void main() {
 	std::cout << err << std::endl;
 }
 //*/
-
+//convert glm test
+/*
 Lua lua;
 bool LoadLua() {
 	lua.LoadStandardLibraries();
@@ -249,6 +250,7 @@ void main() {
 
 	//same script run 2nd time
 	lua.RunScript(""
+		""
 		"context = {}\n"
 		"context.asdf = 5;\n"
 		"context.start = function()\n"
@@ -267,6 +269,7 @@ void main() {
 		"	--yay\n"
 		"	return true\n"
 		"end\n"
+		""
 		"");
 	auto obj2 = lua.GetGlobalEnvironment().Get<LuaTable>("context");
 	obj2.Get<LuaFunction<bool()>>("start").Invoke();
@@ -282,5 +285,172 @@ void main() {
 		obj2.Get<LuaFunction<bool()>>("lateUpdate").Invoke();
 	}
 	//std::cout << lua.GetGlobalEnvironment().Get<float>("b") << std::endl;
-	std::cout << std::endl << std::endl << std::endl << sizeof(LuaTable) << std::endl;
+}
+//*/
+#include <luacppinterface.h>
+Lua LoadLua() {
+	Lua lua;
+	lua.LoadStandardLibraries();
+	return lua;
+}
+
+Lua lua = LoadLua();
+
+
+class Vec3 {
+public:
+	float x,y,z;
+};
+
+template <typename T>
+class PropertyGet {
+private:
+	PropertyGet(const PropertyGet<T>&) {}
+protected:
+	T val;
+	PropertyGet & operator=(const PropertyGet<T>& that) { val = that; return *this; }
+public:
+	PropertyGet() : val(0) {};
+	explicit PropertyGet(float a) : val(a) {};
+	T get() { return val; }
+	inline operator T() const { return val; }
+};
+
+template <typename T>
+class PropertyGetSet : public PropertyGet<T> {
+public:
+	PropertyGetSet() : PropertyGet() {};
+	PropertyGetSet(float a) : PropertyGet(a) {};
+	PropertyGetSet(const PropertyGet<T>& that) { val = that; }
+
+	PropertyGetSet & operator=(const PropertyGet<T>& that) { val = that; return *this; }
+	void set(T toSet) { val = toSet; }
+	T& get() { return val; }
+	inline PropertyGetSet& operator+=(const PropertyGet<T>& that){ (this->val += that); return *this; }
+	inline PropertyGetSet& operator-=(const PropertyGet<T>& that){ (this->val -= that); return *this; }
+	inline PropertyGetSet& operator*=(const PropertyGet<T>& that){ (this->val *= that); return *this; }
+	inline PropertyGetSet& operator/=(const PropertyGet<T>& that){ (this->val /= that); return *this; }
+	inline operator const PropertyGet<T>&() const { return *this; }
+};
+
+#define MAKE_LUA_INSTANCE_RET(class_name,varname) LuaUserdata<class_name> varname = lua.CreateUserdata<class_name>(this,[](class_name*){}); //this disables the destructor call
+
+class WrapVec3 {
+private:
+	Vec3 back;
+public:
+	PropertyGetSet<float> x;
+	PropertyGetSet<float> y;
+	PropertyGetSet<float> z;
+	float getX() { return x; }
+	float getY() { return y; }
+	float getZ() { return z; }
+	void  setX(float x) { this->x = x; }
+	void  setY(float y) { this->y = y; }
+	void  setZ(float z) { this->z = z; }
+	void set(float x, float y, float z) {
+		this->x = x;
+		this->y = y;
+		this->z = z;
+	}
+	inline operator const Vec3&() const {
+		(*((float*)&back+0)) = x; // tricking const
+		(*((float*)&back+1)) = y;
+		(*((float*)&back+2)) = y;
+		return back;
+	}
+	LuaUserdata<WrapVec3> getLuaInstance() {
+		MAKE_LUA_INSTANCE_RET(WrapVec3,ret);
+		ret.Set("x",&x.get());
+		ret.Set("y",&y.get());
+		ret.Set("z",&z.get());
+		ret.Bind("setX",&WrapVec3::setX);
+		ret.Bind("setY",&WrapVec3::setY);
+		ret.Bind("setZ",&WrapVec3::setZ);
+		ret.Bind("getX",&WrapVec3::getX);
+		ret.Bind("getY",&WrapVec3::getY);
+		ret.Bind("getZ",&WrapVec3::getZ);
+		ret.Bind("set",&WrapVec3::set);
+
+		return ret;
+	}
+};
+
+class MatrixInfo {
+public:
+	WrapVec3 pos;
+	WrapVec3 scale;
+	WrapVec3 rot;
+
+	LuaUserdata<WrapVec3>getLuaPos()   { return pos.getLuaInstance(); }
+	LuaUserdata<WrapVec3>getLuaScale() { return pos.getLuaInstance(); }
+	LuaUserdata<WrapVec3>getLuaRot()   { return pos.getLuaInstance(); }
+
+	LuaUserdata<MatrixInfo> getLuaInstance() {
+		MAKE_LUA_INSTANCE_RET(MatrixInfo,ret);
+		ret.Set("pos",  &pos.getLuaInstance());
+		ret.Set("scale",&scale.getLuaInstance());
+		ret.Set("rot",  &rot.getLuaInstance());
+		ret.Bind("getPos",  &MatrixInfo::getLuaPos  );
+		ret.Bind("getScale",&MatrixInfo::getLuaScale);
+		ret.Bind("getRot",  &MatrixInfo::getLuaRot  );
+
+		return ret;
+	}
+};
+
+class Entity {
+public:
+	MatrixInfo transform;
+	LuaUserdata<MatrixInfo> getLuaTransform() { return transform.getLuaInstance(); }
+	LuaUserdata<Entity> getLuaInstance() {
+		MAKE_LUA_INSTANCE_RET(Entity,ret);
+		ret.Set("transform",  &transform.getLuaInstance() );
+		ret.Bind("getTransform",  &Entity::getLuaTransform );
+
+		return ret;
+	}
+};
+
+class Component {
+public:
+	Entity * parent;
+	LuaUserdata<Entity> getLuaParent() {
+		return parent->getLuaInstance();
+	}
+};
+
+void main() {
+	Component t;
+	t.parent = new Entity();
+
+	t.parent->transform.pos.x = 5;
+	Vec3 test = t.parent->transform.pos;
+	std:: cout << test.x << std::endl;
+
+	std::cout << "+-----------+" << std::endl;
+	std::cout << "| Lua Start |" << std::endl;
+	std::cout << "+-----------+" << std::endl;
+	lua.GetGlobalEnvironment().Set("t",t.getLuaParent());
+	auto err = lua.RunScript(""
+		"print('get:' .. t.getTransform().getPos().x);                  \n"
+		"t.getTransform().getPos().setX(6);                  \n"
+		"print('get:' .. t.getTransform().getPos().getX());                  \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"                                        \n"
+		"");
+	std::cout << "+-------------------" << std::endl;
+	std::cout << "| Lua End: " << err << std::endl;
+	std::cout << "+-------------------" << std::endl;
+	std::cout << t.parent->transform.pos.x << std::endl;
+
 }
