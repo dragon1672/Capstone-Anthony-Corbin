@@ -339,6 +339,15 @@ public:
 #define GET_LUA_VER(var_type,real_var) LuaUserdata<var_type>get_lua_##real_var##() { return (LuaUserdata<var_type>)real_var; }
 #define BIND_LUA_VER(class_name,var_name,real_var) var_name.Bind(#real_var,  &##class_name##::get_lua_##real_var  )
 
+class BoundFloat {
+	float& ref;
+public:
+	BoundFloat(float& toWatch) : ref(toWatch) {}
+	BoundFloat(float * toWatch) : ref(*toWatch) {}
+	BoundFloat& operator=(const float& that) { ref = that; return *this; }
+	inline operator float&() { return ref; }
+};
+
 class WrapVec3 {
 private:
 	Vec3 back;
