@@ -376,6 +376,8 @@ namespace wrap {
 
 	class vec3 : public Vec3 {
 	public:
+		vec3() { }
+		vec3(Vec3& that) { set(that); }
 		inline operator Vec3&() { return *reinterpret_cast<Vec3*>(this); }
 		vec3& operator=(const Vec3& that) { set(that); return *this; }
 		LUA_VECTOR_MAKE_GETTER_SETTER(X,x);
@@ -460,6 +462,10 @@ public:
 	
 };
 
+void testingPram(Vec3& in) {
+	in.x = 5;
+}
+
 void main() {
 	Component t;
 	t.parent = new Entity();
@@ -468,6 +474,8 @@ void main() {
 	t.parent->transform.pos.x = 5;
 	Vec3 test = t.parent->transform.pos;
 	std:: cout << test.x << std::endl;
+
+	testingPram(t.parent->transform.pos);
 
 	std::cout << "+-----------+" << std::endl;
 	std::cout << "| Lua Start |" << std::endl;
