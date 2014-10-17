@@ -352,9 +352,14 @@ class WrapVec3 {
 private:
 	Vec3 back;
 public:
-	float x;
-	float y;
-	float z;
+	BoundFloat x;
+	BoundFloat y;
+	BoundFloat z;
+	WrapVec3() :
+		x(back.x),
+		y(back.y),
+		z(back.z)
+	{}
 	float getX() { return x; }
 	float getY() { return y; }
 	float getZ() { return z; }
@@ -366,24 +371,17 @@ public:
 		this->y = y;
 		this->z = z;
 	}
-	inline operator const Vec3&() const {
-		(*((float*)&back+0)) = x; // tricking const
-		(*((float*)&back+1)) = y;
-		(*((float*)&back+2)) = y;
-		return back;
-	}
-	LuaUserdata<WrapVec3> getLuaInstance() {
+	inline operator Vec3&() { return back; }
+
+	inline operator LuaUserdata<WrapVec3>() {
 		MAKE_LUA_INSTANCE_RET(WrapVec3,ret);
-		ret.Set("x",&x.get());
-		ret.Set("y",&y.get());
-		ret.Set("z",&z.get());
 		ret.Bind("setX",&WrapVec3::setX);
 		ret.Bind("setY",&WrapVec3::setY);
 		ret.Bind("setZ",&WrapVec3::setZ);
 		ret.Bind("getX",&WrapVec3::getX);
 		ret.Bind("getY",&WrapVec3::getY);
 		ret.Bind("getZ",&WrapVec3::getZ);
-		ret.Bind("set",&WrapVec3::set);
+		ret.Bind("set", &WrapVec3::set);
 
 		return ret;
 	}
