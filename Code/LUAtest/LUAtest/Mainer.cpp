@@ -298,10 +298,18 @@ Lua LoadLua() {
 
 Lua lua = LoadLua();
 
-
-class Vec3 {
-public:
-	float x,y,z;
+union Vec3 {
+	float vals[3];
+	struct {
+		float r;
+		float g;
+		float b;
+	};
+	struct {
+		float x;
+		float y;
+		float z;
+	};
 };
 
 template <typename T>
@@ -350,17 +358,28 @@ public:
 	inline operator float&() { return ref; }
 };
 
+
+
 class WrapVec3 {
 private:
 	Vec3 back;
 public:
-	BoundFloat x;
-	BoundFloat y;
-	BoundFloat z;
+	union {
+		struct {
+			BoundFloat x;
+			BoundFloat y;
+			BoundFloat z;
+		};
+		struct {
+			BoundFloat r;
+			BoundFloat g;
+			BoundFloat b;
+		};
+	};
 	WrapVec3() :
-		x(back.x),
-		y(back.y),
-		z(back.z)
+		x(back.x),	r(back.x),
+		y(back.y),	g(back.y),
+		z(back.z),	b(back.z)
 	{}
 	float getX() { return x; }
 	float getY() { return y; }
@@ -472,5 +491,7 @@ void main() {
 	std::cout << "+-------------------" << std::endl;
 	std::cout << t.parent->transform.pos.x << std::endl;
 
+
+	std::cout << std::endl << std::endl << std::endl << sizeof(Vec3) << std::endl;
 }
 //*/
