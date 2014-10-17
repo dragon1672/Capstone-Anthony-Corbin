@@ -107,7 +107,7 @@ void main() {
 }
 //*/
 //convert glm test
-/*
+//*
 Lua lua;
 bool LoadLua() {
 	lua.LoadStandardLibraries();
@@ -216,17 +216,17 @@ void main() {
 		""
 		""
 		"context = {}\n"
-		"context.asdf = 5;\n"
+		"context.pie = 9;\n"
 		"context.start = function()\n"
-		"	print(context.asdf)\n"
+		"	print(context.pie)\n"
 		"	return true\n"
 		"end\n"
 		"context.earlyUpdate = function()\n"
-		"	context.asdf = context.asdf+ 1;\n"
+		"	context.pie = context.pie+ 1;\n"
 		"	return true\n"
 		"end\n"
 		"context.update = function()\n"
-		"	print(context.asdf)\n"
+		"	print(context.pie)\n"
 		"	return true\n"
 		"end\n"
 		"context.lateUpdate = function()\n"
@@ -288,7 +288,7 @@ void main() {
 }
 //*/
 //convert glm cont
-//*
+/*
 #include <luacppinterface.h>
 Lua LoadLua() {
 	Lua lua;
@@ -439,14 +439,17 @@ public:
 	MatrixInfo transform;
 	GET_LUA_VER(MatrixInfo,transform);
 
+	MatrixInfo * getMat() {
+		return &transform;
+	}
+	
+
 	inline operator LuaUserdata<Entity>() {
 		MAKE_LUA_INSTANCE_RET(Entity,ret);
 		BIND_LUA_VER(Entity,ret,transform);
 		return ret;
 	}
-	inline operator float() {
-		return 5;
-	}
+ 	
 };
 
 class Component {
@@ -469,7 +472,7 @@ void testingPram(Vec3& in) {
 void main() {
 	Component t;
 	t.parent = new Entity();
-	float pie = *t.parent;
+	//float pie = *t.parent;
 
 	t.parent->transform.pos.x = 5;
 	Vec3 test = t.parent->transform.pos;
@@ -480,11 +483,11 @@ void main() {
 	std::cout << "+-----------+" << std::endl;
 	std::cout << "| Lua Start |" << std::endl;
 	std::cout << "+-----------+" << std::endl;
-	lua.GetGlobalEnvironment().Set("t",(LuaUserdata<Component>)t);
+	lua.GetGlobalEnvironment().Set("t",(LuaUserdata<Entity>)*t.parent);
 	auto err = lua.RunScript(""
-		"print(t.parent().transform().pos().getX());                  \n"
-		"t.parent().transform().pos().setX(6);                  \n"
-		"print(t.parent().transform().pos().getX());                  \n"
+		"print(t.transform().pos().getX());                  \n"
+		"t.transform().pos().setX(6);                  \n"
+		"print(t.transform().pos().getX());                  \n"
 		"                                        \n"
 		"                                        \n"
 		"                                        \n"
