@@ -298,17 +298,20 @@ Lua LoadLua() {
 
 Lua lua = LoadLua();
 
-union Vec3 {
-	float vals[3];
-	struct {
-		float r;
-		float g;
-		float b;
-	};
-	struct {
-		float x;
-		float y;
-		float z;
+class Vec3 {
+public:
+	union {
+		float vals[3];
+		struct {
+			float r;
+			float g;
+			float b;
+		};
+		struct {
+			float x;
+			float y;
+			float z;
+		};
 	};
 };
 
@@ -360,63 +363,63 @@ public:
 
 
 
-class WrapVec3 {
-private:
-	Vec3 back;
-public:
-	union {
-		struct {
-			BoundFloat x;
-			BoundFloat y;
-			BoundFloat z;
-		};
-		struct {
-			BoundFloat r;
-			BoundFloat g;
-			BoundFloat b;
-		};
+#define LUA_VECTOR_MAKE_GETTER_SETTER(Uppercase,LowerCase)\
+	inline float get##Uppercase##() { return LowerCase; }                 \
+	inline void  set##Uppercase##(float LowerCase) { this->LowerCase = LowerCase; }
+#define LUA_STRING(x) #x
+#define LUA_GLEW(a,b) LUA_STRING(a##b)
+#define LUA_VECTOR_BIND(vec_type,var_name,UppercaseLetter)\
+	var_name.Bind(LUA_GLEW(set,UppercaseLetter),&##vec_type##::set##UppercaseLetter##);\
+	var_name.Bind(LUA_GLEW(get,UppercaseLetter),&##vec_type##::get##UppercaseLetter##)
+
+namespace wrap {
+
+	class vec3 : public Vec3 {
+	public:
+		inline operator Vec3&() { return *reinterpret_cast<Vec3*>(this); }
+		vec3& operator=(const Vec3& that) { set(that); return *this; }
+		LUA_VECTOR_MAKE_GETTER_SETTER(X,x);
+		LUA_VECTOR_MAKE_GETTER_SETTER(Y,y);
+		LUA_VECTOR_MAKE_GETTER_SETTER(Z,z);
+
+		LUA_VECTOR_MAKE_GETTER_SETTER(R,r);
+		LUA_VECTOR_MAKE_GETTER_SETTER(G,g);
+		LUA_VECTOR_MAKE_GETTER_SETTER(B,b);
+		void  set(const Vec3& that) {
+			this->x = that.x;
+			this->y = that.y;
+			this->z = that.z;
+		}
+		void  set(float x, float y, float z, float w) {
+			this->x = x;
+			this->y = y;
+			this->z = z;
+		}
+
+		inline operator LuaUserdata<vec3>() {
+			MAKE_LUA_INSTANCE_RET(vec3,ret);
+			LUA_VECTOR_BIND(vec3,ret,X);
+			LUA_VECTOR_BIND(vec3,ret,Y);
+			LUA_VECTOR_BIND(vec3,ret,Z);
+
+			LUA_VECTOR_BIND(vec3,ret,R);
+			LUA_VECTOR_BIND(vec3,ret,G);
+			LUA_VECTOR_BIND(vec3,ret,B);
+
+			return ret;
+		}
 	};
-	WrapVec3() :
-		x(back.x),	r(back.x),
-		y(back.y),	g(back.y),
-		z(back.z),	b(back.z)
-	{}
-	float getX() { return x; }
-	float getY() { return y; }
-	float getZ() { return z; }
-	void  setX(float x) { this->x = x; }
-	void  setY(float y) { this->y = y; }
-	void  setZ(float z) { this->z = z; }
-	void  set(float x, float y, float z) {
-		this->x = x;
-		this->y = y;
-		this->z = z;
-	}
-	inline operator Vec3&() { return back; }
-
-	inline operator LuaUserdata<WrapVec3>() {
-		MAKE_LUA_INSTANCE_RET(WrapVec3,ret);
-		ret.Bind("setX",&WrapVec3::setX);
-		ret.Bind("setY",&WrapVec3::setY);
-		ret.Bind("setZ",&WrapVec3::setZ);
-		ret.Bind("getX",&WrapVec3::getX);
-		ret.Bind("getY",&WrapVec3::getY);
-		ret.Bind("getZ",&WrapVec3::getZ);
-		ret.Bind("set", &WrapVec3::set);
-
-		return ret;
-	}
-};
+}
 
 class MatrixInfo {
 public:
-	WrapVec3 pos;
-	WrapVec3 scale;
-	WrapVec3 rot;
+	wrap::vec3 pos;
+	wrap::vec3 scale;
+	wrap::vec3 rot;
 
-	GET_LUA_VER(WrapVec3,pos  );
-	GET_LUA_VER(WrapVec3,scale);
-	GET_LUA_VER(WrapVec3,rot  );
+	GET_LUA_VER(wrap::vec3,pos  );
+	GET_LUA_VER(wrap::vec3,scale);
+	GET_LUA_VER(wrap::vec3,rot  );
 
 	inline operator LuaUserdata<MatrixInfo>() {
 		MAKE_LUA_INSTANCE_RET(MatrixInfo,ret);
@@ -471,9 +474,9 @@ void main() {
 	std::cout << "+-----------+" << std::endl;
 	lua.GetGlobalEnvironment().Set("t",(LuaUserdata<Component>)t);
 	auto err = lua.RunScript(""
-		"print('get:' .. t.parent().transform().pos().getX());                  \n"
+		"print(t.parent().transform().pos().getX());                  \n"
 		"t.parent().transform().pos().setX(6);                  \n"
-		"print('get:' .. t.parent().transform().pos().getX());                  \n"
+		"print(t.parent().transform().pos().getX());                  \n"
 		"                                        \n"
 		"                                        \n"
 		"                                        \n"
@@ -491,6 +494,10 @@ void main() {
 	std::cout << "+-------------------" << std::endl;
 	std::cout << t.parent->transform.pos.x << std::endl;
 
+
+	Vec3 pickle;
+	pickle.y = 5;
+	t.parent->transform.pos = pickle;
 
 	std::cout << std::endl << std::endl << std::endl << sizeof(Vec3) << std::endl;
 }
