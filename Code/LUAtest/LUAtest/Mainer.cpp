@@ -287,6 +287,8 @@ void main() {
 	//std::cout << lua.GetGlobalEnvironment().Get<float>("b") << std::endl;
 }
 //*/
+//convert glm cont
+//*
 #include <luacppinterface.h>
 Lua LoadLua() {
 	Lua lua;
@@ -393,18 +395,16 @@ public:
 	WrapVec3 scale;
 	WrapVec3 rot;
 
-	LuaUserdata<WrapVec3>getLuaPos()   { return pos.getLuaInstance(); }
-	LuaUserdata<WrapVec3>getLuaScale() { return pos.getLuaInstance(); }
-	LuaUserdata<WrapVec3>getLuaRot()   { return pos.getLuaInstance(); }
+	GET_LUA_VER(WrapVec3,pos  );
+	GET_LUA_VER(WrapVec3,scale);
+	GET_LUA_VER(WrapVec3,rot  );
 
-	LuaUserdata<MatrixInfo> getLuaInstance() {
+	inline operator LuaUserdata<MatrixInfo>() {
 		MAKE_LUA_INSTANCE_RET(MatrixInfo,ret);
-		ret.Set("pos",  &pos.getLuaInstance());
-		ret.Set("scale",&scale.getLuaInstance());
-		ret.Set("rot",  &rot.getLuaInstance());
-		ret.Bind("getPos",  &MatrixInfo::getLuaPos  );
-		ret.Bind("getScale",&MatrixInfo::getLuaScale);
-		ret.Bind("getRot",  &MatrixInfo::getLuaRot  );
+
+		BIND_LUA_VER(MatrixInfo,ret,pos  ); // myObj.pos()
+		BIND_LUA_VER(MatrixInfo,ret,scale);
+		BIND_LUA_VER(MatrixInfo,ret,rot  );
 
 		return ret;
 	}
@@ -413,27 +413,35 @@ public:
 class Entity {
 public:
 	MatrixInfo transform;
-	LuaUserdata<MatrixInfo> getLuaTransform() { return transform.getLuaInstance(); }
-	LuaUserdata<Entity> getLuaInstance() {
-		MAKE_LUA_INSTANCE_RET(Entity,ret);
-		ret.Set("transform",  &transform.getLuaInstance() );
-		ret.Bind("getTransform",  &Entity::getLuaTransform );
+	GET_LUA_VER(MatrixInfo,transform);
 
+	inline operator LuaUserdata<Entity>() {
+		MAKE_LUA_INSTANCE_RET(Entity,ret);
+		BIND_LUA_VER(Entity,ret,transform);
 		return ret;
+	}
+	inline operator float() {
+		return 5;
 	}
 };
 
 class Component {
 public:
 	Entity * parent;
-	LuaUserdata<Entity> getLuaParent() {
-		return parent->getLuaInstance();
+	GET_LUA_VER_PTR(Entity,parent);
+
+	inline operator LuaUserdata<Component>() {
+		MAKE_LUA_INSTANCE_RET(Component,ret);
+		BIND_LUA_VER(Component,ret,parent);
+		return ret;
 	}
+	
 };
 
 void main() {
 	Component t;
 	t.parent = new Entity();
+	float pie = *t.parent;
 
 	t.parent->transform.pos.x = 5;
 	Vec3 test = t.parent->transform.pos;
@@ -442,11 +450,11 @@ void main() {
 	std::cout << "+-----------+" << std::endl;
 	std::cout << "| Lua Start |" << std::endl;
 	std::cout << "+-----------+" << std::endl;
-	lua.GetGlobalEnvironment().Set("t",t.getLuaParent());
+	lua.GetGlobalEnvironment().Set("t",(LuaUserdata<Component>)t);
 	auto err = lua.RunScript(""
-		"print('get:' .. t.getTransform().getPos().x);                  \n"
-		"t.getTransform().getPos().setX(6);                  \n"
-		"print('get:' .. t.getTransform().getPos().getX());                  \n"
+		"print('get:' .. t.parent().transform().pos().getX());                  \n"
+		"t.parent().transform().pos().setX(6);                  \n"
+		"print('get:' .. t.parent().transform().pos().getX());                  \n"
 		"                                        \n"
 		"                                        \n"
 		"                                        \n"
@@ -465,3 +473,4 @@ void main() {
 	std::cout << t.parent->transform.pos.x << std::endl;
 
 }
+//*/
