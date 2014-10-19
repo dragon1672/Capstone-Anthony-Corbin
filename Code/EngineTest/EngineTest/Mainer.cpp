@@ -37,8 +37,6 @@ int main(int argc, char * argv[]) {
 
 		//*/
 		//*random
-		"function context:start() return true end            \n"
-		"                                                    \n"
 		"function context:myPrint(a) print(a..' random') end\n"
 		"                                                   \n"
 		"function context:earlyUpdate() self:myPrint('Early') return true end     \n"
@@ -54,8 +52,6 @@ int main(int argc, char * argv[]) {
 		"",
 		//*/
 		//*dt
-		"function context:start() return true end          \n"
-		"                                                  \n"
 		"function context:myPrint(a) print(a..' dt') end\n"
 		"                                                   \n"
 		"function context:earlyUpdate() self:myPrint('Early') return true end     \n"
