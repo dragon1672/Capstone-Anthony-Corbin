@@ -12,7 +12,7 @@ int main(int argc, char * argv[]) {
 	//_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	GameObjectManager game;
-
+	
 	Entity * e = game.AddEntity("Steve");
 	e->addComponent<MatrixInfo>();
 	e->getTrans()->pos.x = -10;
@@ -34,7 +34,7 @@ int main(int argc, char * argv[]) {
 		"end                                                \n"
 		"function context:lateUpdate() self:myPrint('late') return true end     \n"
 		"",
-
+	
 		//*/
 		//*random
 		"function context:myPrint(a) print(a..' random') end\n"
@@ -45,7 +45,7 @@ int main(int argc, char * argv[]) {
 		"    x = x + Random.RangeFloat(1,3)                  \n"
 		"    self.parent.getTrans().pos().setX(x);           \n"
 		"                                                    \n"
-		"    print('x'..self.parent.getTrans().pos().getX()) \n"
+		"    print(Random.String.Letters(5)..':'..self.parent.getTrans().pos().getX()) \n"
 		"    return true                                     \n"
 		"end                                                 \n"
 		"function context:lateUpdate() self:myPrint('late') return true end     \n"
@@ -83,6 +83,6 @@ int main(int argc, char * argv[]) {
 		game.update();
 	}
 	std::cout << e->getTrans()->pos.x << std::endl;
-
+	
 	return 0;//app.exec();
 }
