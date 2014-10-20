@@ -14,7 +14,7 @@ int main(int argc, char * argv[]) {
 	GameObjectManager game;
 
 	Entity * e = game.AddEntity("Steve");
-	e->addComponent(new MatrixInfo());
+	e->addComponent<MatrixInfo>();
 	e->getTrans()->pos.x = -10;
 	std::string scripts[] = {
 		//*hello world
@@ -76,11 +76,9 @@ int main(int argc, char * argv[]) {
 	};
 	for (int i = 0; i < sizeof(scripts)/sizeof(*scripts); i++)
 	{
-		e->addComponent(new ScriptComponent(scripts[i].c_str()));
+		e->addComponent<ScriptComponent>(scripts[i].c_str());
 	}
-	e->getScript();
 	game.init();
-	e->getScript();
 	for (int i = 0; i < 5; i++) {
 		game.update();
 	}
