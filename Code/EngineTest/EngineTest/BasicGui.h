@@ -17,16 +17,19 @@ public:
 	void initializeGL();
 
 	void startGameLoop() {
-		connect(&timer,&QTimer::timeout,[this](){ this->update(); });
+		timer.start();
 	}
 
 	void update() {
 		meGame.update();
+		repaint();
 	}
 
 	void resizeGL(int w, int h)
 	{
 		glViewport(0, 0, w, h);
+		meGame.width = w;
+		meGame.height = h;
 		//edit project matrix
 	}
 
