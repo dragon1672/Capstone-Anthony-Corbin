@@ -9,6 +9,7 @@
 #include "BasicGui.h"
 
 #include <ShapeGenerator.h>
+#include <Engine/Systems/Resources/Shaders/DefaultShaders.h>
 
 #pragma region shaderCode
 const char * defaultVertShader = "#version 400					  \n"
@@ -80,15 +81,19 @@ int main(int argc, char * argv[]) {
 	QApplication app(argc, argv);
 	BasicGui gui;
 
-	resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeCube());
-	//resourceManager.addShader_file()
+	auto geo = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeCube());
+	auto shader = resourceManager.addShader_src("basic Shader",DefaultShaders::VertexShader::DefaultVertShader(),DefaultShaders::FragShader::FragModelColor());
+	auto tmp = gui.meGame.AddEntity();
+	auto comp = tmp->addComponent<RenderableComponent>();
+	comp->whatGeo = geo;
+	comp->howShader = shader;
+
 
 	gui.init();
 
-	gui.show();
-
 	gui.startGameLoop();
 
+	gui.show();
 
 	return app.exec();
 }
