@@ -82,26 +82,95 @@ int main(int argc, char * argv[]) {
 	QApplication app(argc, argv);
 	GuiSkellyTon gui;
 
+
+	auto keyBoardController = resourceManager.addScript_src("KeyboardController",
+		"--087 W \n"
+		"--065 A \n"
+		"--083 S \n"
+		"--068 D \n"
+		"function context:start()                           \n"
+		"    self.Speed = 5  \n"
+		"    return true                                    \n"
+		"end                                                \n"
+		"function context:update()                           \n"
+		"    if(Input.getKeyDown(KeyCode.W)) then                    \n"
+		"       local tmp = self.parent.getTrans().pos().getY();  \n"
+		"       tmp = tmp + Timer.deltaTime() * self.Speed        \n"
+		"       self.parent.getTrans().pos().setY(tmp);           \n"
+		"     end                                                 \n"
+
+		"    if(Input.getKeyDown(KeyCode.S)) then                    \n"
+		"       local tmp = self.parent.getTrans().pos().getY();  \n"
+		"       tmp = tmp - Timer.deltaTime() * self.Speed        \n"
+		"       self.parent.getTrans().pos().setY(tmp);           \n"
+		"     end                                                 \n"
+
+		"    if(Input.getKeyDown(KeyCode.A)) then                    \n"
+		"       local tmp = self.parent.getTrans().pos().getX();  \n"
+		"       tmp = tmp - Timer.deltaTime() * self.Speed        \n"
+		"       self.parent.getTrans().pos().setX(tmp);           \n"
+		"     end                                                 \n"
+
+		"    if(Input.getKeyDown(KeyCode.D)) then                    \n"
+		"       local tmp = self.parent.getTrans().pos().getX();  \n"
+		"       tmp = tmp + Timer.deltaTime() * self.Speed        \n"
+		"       self.parent.getTrans().pos().setX(tmp);           \n"
+		"     end                                                 \n"
+		//"    print(self.parent.getTrans().rot().getX());     \n"
+		"    return true                                     \n"
+		"end                                                 \n"
+		"");
+
 	auto geo = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeCube());
 	auto shader = resourceManager.addShader_src("basic Shader",DefaultShaders::VertexShader::DefaultVertShader(),DefaultShaders::FragShader::FragModelColor());
 	auto tmp = gui.addEntity("Bob");
 	auto comp = tmp->addComponent<RenderableComponent>();
-	tmp->getTrans()->rot.x = 5;
 	comp->whatGeo = geo;
 	comp->howShader = shader;
-	tmp->addComponent<ScriptComponent>(resourceManager.addScript_src("name",//random
-		"function context:start()                           \n"
-		"    self.rotSpeed = Random.RangeFloat(10,300);     \n"
-		"    return true                                    \n"
-		"end                                                \n"
+	tmp->addComponent<ScriptComponent>(resourceManager.addScript_src("rotator",//random
+		"function context:start()                            \n"
+		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
+		"    return true                                     \n"
+		"end                                                 \n"
 		"function context:update()                           \n"
 		"    local x = self.parent.getTrans().rot().getX();  \n"
-		"    x = x + Timer.deltaTime() * self.rotSpeed                  \n"
+		"    x = x + Timer.deltaTime() * self.rotSpeed       \n"
 		"    self.parent.getTrans().rot().setX(x);           \n"
 		//"    print(self.parent.getTrans().rot().getX());     \n"
 		"    return true                                     \n"
 		"end                                                 \n"
 		"")->getID());
+	(void)keyBoardController;
+	tmp->addComponent<ScriptComponent>(keyBoardController->getID());
+
+	auto obj2 = gui.addEntity("Fast Rotator");
+	obj2->addComponent<RenderableComponent>();
+	obj2->getRenderable()->whatGeo = geo;
+	obj2->getRenderable()->howShader = shader;
+	obj2->addComponent<ScriptComponent>(resourceManager.getFirstScript("rotator")->getID());
+	//obj2->addComponent<ScriptComponent>(keyBoardController->getID());
+	obj2->getTrans()->pos.x = 5;
+	obj2->Parent(tmp);
+
+	auto obj3 = gui.addEntity("Swinger");
+	obj3->addComponent<RenderableComponent>();
+	obj3->getRenderable()->whatGeo = geo;
+	obj3->getRenderable()->howShader = shader;
+	obj3->addComponent<ScriptComponent>(resourceManager.getFirstScript("rotator")->getID());
+	obj3->getTrans()->pos.y = 5;
+	obj3->getTrans()->scale = glm::vec3(.5f,.5f,.5f);
+	obj3->Parent(tmp);
+
+	auto obj4 = gui.addEntity("Super Swing");
+	obj4->addComponent<RenderableComponent>();
+	obj4->getRenderable()->whatGeo = geo;
+	obj4->getRenderable()->howShader = shader;
+	obj4->addComponent<ScriptComponent>(resourceManager.getFirstScript("rotator")->getID());
+	obj4->getTrans()->pos.y = 2;
+	obj4->getTrans()->scale = glm::vec3(.2f,.2f,.2f);
+	obj4->Parent(obj3);
+
+
 
 	gui.init();
 
