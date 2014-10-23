@@ -6,7 +6,7 @@
 #include <../Engine/Engine/Tools/MatrixInfo.h>
 #include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/Systems/GameObjectManager.h>
 
-#include "BasicGui.h"
+#include <CorbinGui/BasicGui.h>
 
 #include <ShapeGenerator.h>
 #include <Engine/Systems/Resources/Shaders/DefaultShaders.h>
@@ -85,9 +85,22 @@ int main(int argc, char * argv[]) {
 	auto shader = resourceManager.addShader_src("basic Shader",DefaultShaders::VertexShader::DefaultVertShader(),DefaultShaders::FragShader::FragModelColor());
 	auto tmp = gui.meGame.AddEntity();
 	auto comp = tmp->addComponent<RenderableComponent>();
+	tmp->getTrans()->rot.x = 5;
 	comp->whatGeo = geo;
 	comp->howShader = shader;
-
+	tmp->addComponent<ScriptComponent>(resourceManager.addScript_src("name",//random
+		"function context:start()                           \n"
+		"    self.rotSpeed = Random.RangeFloat(10,300);     \n"
+		"    return true                                    \n"
+		"end                                                \n"
+		"function context:update()                           \n"
+		"    local x = self.parent.getTrans().rot().getX();  \n"
+		"    x = x + Timer.deltaTime() * self.rotSpeed                  \n"
+		"    self.parent.getTrans().rot().setX(x);           \n"
+		//"    print(self.parent.getTrans().rot().getX());     \n"
+		"    return true                                     \n"
+		"end                                                 \n"
+		"")->getID());
 
 	gui.init();
 
