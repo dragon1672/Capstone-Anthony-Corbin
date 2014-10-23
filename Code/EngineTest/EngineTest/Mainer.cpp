@@ -6,7 +6,8 @@
 #include <../Engine/Engine/Tools/MatrixInfo.h>
 #include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/Systems/GameObjectManager.h>
 
-#include <CorbinGui/BasicGui.h>
+#include <CorbinGui/BasicQGLGui.h>
+#include <CorbinGui/GuiSkellyTon.h>
 
 #include <ShapeGenerator.h>
 #include <Engine/Systems/Resources/Shaders/DefaultShaders.h>
@@ -79,11 +80,11 @@ const char * defaultFragShader_CubeMapWorld = "#version 400\n"
 
 int main(int argc, char * argv[]) {
 	QApplication app(argc, argv);
-	BasicGui gui;
+	GuiSkellyTon gui;
 
 	auto geo = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeCube());
 	auto shader = resourceManager.addShader_src("basic Shader",DefaultShaders::VertexShader::DefaultVertShader(),DefaultShaders::FragShader::FragModelColor());
-	auto tmp = gui.meGame.AddEntity();
+	auto tmp = gui.addEntity("Bob");
 	auto comp = tmp->addComponent<RenderableComponent>();
 	tmp->getTrans()->rot.x = 5;
 	comp->whatGeo = geo;
@@ -104,7 +105,7 @@ int main(int argc, char * argv[]) {
 
 	gui.init();
 
-	gui.startGameLoop();
+	//gui.startGameLoop();
 
 	gui.show();
 
