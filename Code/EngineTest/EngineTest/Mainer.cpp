@@ -84,10 +84,6 @@ int main(int argc, char * argv[]) {
 
 
 	auto keyBoardController = resourceManager.addScript_src("KeyboardController",
-		"--087 W \n"
-		"--065 A \n"
-		"--083 S \n"
-		"--068 D \n"
 		"function context:start()                           \n"
 		"    self.Speed = 5  \n"
 		"    return true                                    \n"
@@ -125,6 +121,7 @@ int main(int argc, char * argv[]) {
 	auto shader = resourceManager.addShader_src("basic Shader",DefaultShaders::VertexShader::DefaultVertShader(),DefaultShaders::FragShader::FragModelColor());
 	auto tmp = gui.addEntity("Bob");
 	auto comp = tmp->addComponent<RenderableComponent>();
+	tmp->getTrans()->pos.z =  -20;
 	comp->whatGeo = geo;
 	comp->howShader = shader;
 	tmp->addComponent<ScriptComponent>(resourceManager.addScript_src("rotator",//random
