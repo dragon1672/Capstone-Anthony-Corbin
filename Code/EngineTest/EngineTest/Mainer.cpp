@@ -124,7 +124,7 @@ int main(int argc, char * argv[]) {
 	tmp->getTrans()->pos.z =  -20;
 	comp->whatGeo = geo;
 	comp->howShader = shader;
-	tmp->addComponent<ScriptComponent>(resourceManager.addScript_src("rotator",//random
+	tmp->addComponent<ScriptComponent>()->script = resourceManager.addScript_src("rotator",//random
 		"function context:start()                            \n"
 		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
 		"    return true                                     \n"
@@ -136,15 +136,18 @@ int main(int argc, char * argv[]) {
 		//"    print(self.parent.getTrans().rot().getX());     \n"
 		"    return true                                     \n"
 		"end                                                 \n"
-		"")->getID());
+		"");
 	(void)keyBoardController;
-	tmp->addComponent<ScriptComponent>(keyBoardController->getID());
+
+	auto cam = gui.addEntity("Cam");
+	cam->addComponent<CameraComponent>();
+	cam->addComponent<ScriptComponent>()->script = keyBoardController;
 
 	auto obj2 = gui.addEntity("Fast Rotator");
 	obj2->addComponent<RenderableComponent>();
 	obj2->getRenderable()->whatGeo = geo;
 	obj2->getRenderable()->howShader = shader;
-	obj2->addComponent<ScriptComponent>(resourceManager.getFirstScript("rotator")->getID());
+	obj2->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
 	//obj2->addComponent<ScriptComponent>(keyBoardController->getID());
 	obj2->getTrans()->pos.x = 5;
 	obj2->Parent(tmp);
@@ -153,7 +156,7 @@ int main(int argc, char * argv[]) {
 	obj3->addComponent<RenderableComponent>();
 	obj3->getRenderable()->whatGeo = geo;
 	obj3->getRenderable()->howShader = shader;
-	obj3->addComponent<ScriptComponent>(resourceManager.getFirstScript("rotator")->getID());
+	obj3->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
 	obj3->getTrans()->pos.y = 5;
 	obj3->getTrans()->scale = glm::vec3(.5f,.5f,.5f);
 	obj3->Parent(tmp);
@@ -162,7 +165,7 @@ int main(int argc, char * argv[]) {
 	obj4->addComponent<RenderableComponent>();
 	obj4->getRenderable()->whatGeo = geo;
 	obj4->getRenderable()->howShader = shader;
-	obj4->addComponent<ScriptComponent>(resourceManager.getFirstScript("rotator")->getID());
+	obj4->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
 	obj4->getTrans()->pos.y = 2;
 	obj4->getTrans()->scale = glm::vec3(.2f,.2f,.2f);
 	obj4->Parent(obj3);
