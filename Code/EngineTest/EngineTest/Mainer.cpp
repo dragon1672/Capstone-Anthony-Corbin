@@ -1,9 +1,9 @@
 #include <QtWidgets/QApplication>
-#include <../Engine/Engine/DebugTools/DebugMemHeader.h>
-#include <../Engine/Engine/Entity/Entity.h>
-#include <../Engine/Engine/Entity/Component.h>
-#include <../Engine/Engine/Entity/Components/ScriptComponent.h>
-#include <../Engine/Engine/Tools/MatrixInfo.h>
+#include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/DebugTools/DebugMemHeader.h>
+#include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/Entity/Entity.h>
+#include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/Entity/Component.h>
+#include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/Entity/Components/ScriptComponent.h>
+#include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/Tools/MatrixInfo.h>
 #include <../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/../Engine/Engine/Systems/GameObjectManager.h>
 
 #include <CorbinGui/BasicQGLGui.h>
@@ -11,72 +11,6 @@
 
 #include <ShapeGenerator.h>
 #include <Engine/Systems/Resources/Shaders/DefaultShaders.h>
-
-#pragma region shaderCode
-const char * defaultVertShader = "#version 400					  \n"
-	"															  \n"
-	"in layout(location=0) vec3 pos;							  \n"
-	"in layout(location=1) vec3 col;							  \n"
-	"in layout(location=3) vec2 uv;								  \n"
-	"															  \n"
-	"out vec2 fragUv;											  \n"
-	"out vec3 fragCol;											  \n"
-	"out vec3 fragPos;											  \n"
-	"out vec3 fragWorldPos;										  \n"
-	"															  \n"
-	"//mats														  \n"
-	"uniform mat4x4 viewTransform;								  \n"
-	"uniform mat4x4 model2WorldTransform;						  \n"
-	"															  \n"
-	"void main() {												  \n"
-	"	vec4 transformedPos = model2WorldTransform * vec4(pos,1); \n"
-	"	gl_Position = viewTransform * transformedPos;			  \n"
-	"	fragUv = uv;											  \n"
-	"	fragCol = col;											  \n"
-	"	fragPos = pos;											  \n"
-	"	fragWorldPos = vec3(transformedPos);					  \n"
-	"}															  \n"
-	"															  \n";
-//color
-const char * defaultFragShader_Color = "#version 400\n"
-	"												\n"
-	"in vec3 fragCol;								\n"
-	"												\n"
-	"void main() {									\n"
-	"	gl_FragColor = vec4(fragCol,1);				\n"
-	"}												\n"
-	"";
-//texture
-const char * defaultFragShader_Texture = "#version 400\n"
-	"												  \n"
-	"in vec2 fragUv;								  \n"
-	"uniform sampler2D myTexture;					  \n"
-	"												  \n"
-	"void main() {									  \n"
-	"	gl_FragColor = texture(myTexture,fragUv);	  \n"
-	"}												  \n"
-	"";
-//Cube map withModeldPos
-const char * defaultFragShader_CubeMapModel= "#version 400\n"
-	"													  \n"
-	"in vec3 fragPos;									  \n"
-	"uniform samplerCube worldMap;						  \n"
-	"													  \n"
-	"void main() {										  \n"
-	"	gl_FragColor = texture(worldMap,fragPos);		  \n"
-	"}													  \n"
-	"";
-//Cube map withWorldPos
-const char * defaultFragShader_CubeMapWorld = "#version 400\n"
-	"													   \n"
-	"in vec3 fragWorldPos;								   \n"
-	"uniform samplerCube worldMap;						   \n"
-	"													   \n"
-	"void main() {										   \n"
-	"	gl_FragColor = texture(worldMap,fragWorldPos);	   \n"
-	"}													   \n"
-	"													   \n";
-#pragma endregion
 
 int main(int argc, char * argv[]) {
 	QApplication app(argc, argv);
@@ -86,39 +20,61 @@ int main(int argc, char * argv[]) {
 	auto keyBoardController = resourceManager.addScript_src("KeyboardController",
 		"function context:start()                           \n"
 		"    self.Speed = 5  \n"
-		"    return true                                    \n"
-		"end                                                \n"
+		"    return true                                     \n"
+		"end                                                 \n"
 		"function context:update()                           \n"
-		"    if(Input.getKeyDown(KeyCode.W)) then                    \n"
-		"       local tmp = self.parent.getTrans().pos().getY();  \n"
-		"       tmp = tmp + Timer.deltaTime() * self.Speed        \n"
-		"       self.parent.getTrans().pos().setY(tmp);           \n"
-		"     end                                                 \n"
-
-		"    if(Input.getKeyDown(KeyCode.S)) then                    \n"
+		"    if(Input.getKeyDown(KeyCode.R)) then                 \n"
 		"       local tmp = self.parent.getTrans().pos().getY();  \n"
 		"       tmp = tmp - Timer.deltaTime() * self.Speed        \n"
 		"       self.parent.getTrans().pos().setY(tmp);           \n"
 		"     end                                                 \n"
 
-		"    if(Input.getKeyDown(KeyCode.A)) then                    \n"
+		"    if(Input.getKeyDown(KeyCode.W)) then                 \n"
+		"       local tmp = self.parent.getTrans().pos().getZ();  \n"
+		"       tmp = tmp + Timer.deltaTime() * self.Speed        \n"
+		"       self.parent.getTrans().pos().setZ(tmp);           \n"
+		"     end                                                 \n"
+
+		"    if(Input.getKeyDown(KeyCode.S)) then                 \n"
+		"       local tmp = self.parent.getTrans().pos().getZ();  \n"
+		"       tmp = tmp - Timer.deltaTime() * self.Speed        \n"
+		"       self.parent.getTrans().pos().setZ(tmp);           \n"
+		"     end                                                 \n"
+
+		"    if(Input.getKeyDown(KeyCode.F)) then                 \n"
+		"       local tmp = self.parent.getTrans().pos().getY();  \n"
+		"       tmp = tmp + Timer.deltaTime() * self.Speed        \n"
+		"       self.parent.getTrans().pos().setY(tmp);           \n"
+		"     end                                                 \n"
+
+		"    if(Input.getKeyDown(KeyCode.D)) then                 \n"
 		"       local tmp = self.parent.getTrans().pos().getX();  \n"
 		"       tmp = tmp - Timer.deltaTime() * self.Speed        \n"
 		"       self.parent.getTrans().pos().setX(tmp);           \n"
 		"     end                                                 \n"
 
-		"    if(Input.getKeyDown(KeyCode.D)) then                    \n"
+		"    if(Input.getKeyDown(KeyCode.A)) then                 \n"
 		"       local tmp = self.parent.getTrans().pos().getX();  \n"
 		"       tmp = tmp + Timer.deltaTime() * self.Speed        \n"
 		"       self.parent.getTrans().pos().setX(tmp);           \n"
 		"     end                                                 \n"
+		"                                                         \n"
+		"     local x = self.parent.getTrans().rot().getX();      \n"
+		"     local y = self.parent.getTrans().rot().getY();      \n"
+		"     x = x + Input.getMouse().delta().getY()           \n"
+		"     y = y + Input.getMouse().delta().getX()           \n"
+		"     self.parent.getTrans().rot().setX(x);               \n"
+		"     self.parent.getTrans().rot().setY(y);               \n"
+		"                                                         \n"
+		"                                                         \n"
 		//"    print(self.parent.getTrans().rot().getX());     \n"
 		"    return true                                     \n"
 		"end                                                 \n"
 		"");
 
 	auto geo = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeCube());
-	auto shader = resourceManager.addShader_src("basic Shader",DefaultShaders::VertexShader::DefaultVertShader(),DefaultShaders::FragShader::FragModelColor());
+	auto shader = resourceManager.getDefault<ShaderProgram>();
+
 	auto tmp = gui.addEntity("Bob");
 	auto comp = tmp->addComponent<RenderableComponent>();
 	tmp->getTrans()->pos.z =  -20;
@@ -148,7 +104,7 @@ int main(int argc, char * argv[]) {
 	obj2->getRenderable()->whatGeo = geo;
 	obj2->getRenderable()->howShader = shader;
 	obj2->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
-	//obj2->addComponent<ScriptComponent>(keyBoardController->getID());
+	obj2->addComponent<ScriptComponent>()->script = keyBoardController;
 	obj2->getTrans()->pos.x = 5;
 	obj2->Parent(tmp);
 
@@ -169,8 +125,6 @@ int main(int argc, char * argv[]) {
 	obj4->getTrans()->pos.y = 2;
 	obj4->getTrans()->scale = glm::vec3(.2f,.2f,.2f);
 	obj4->Parent(obj3);
-
-
 
 	gui.init();
 
