@@ -19,8 +19,8 @@ int main(int argc, char * argv[]) {
 
 	auto keyBoardController = resourceManager.addScript_src("KeyboardController",
 		"function context:start()                                                   \n"
-		"    self.KeySpeed = 5                                                      \n"
-		"    self.MouseSpeed = 1                                                    \n"
+		"    self.KeySpeed = 9                                                      \n"
+		"    self.MouseSpeed = .5                                                   \n"
 		"    return true                                                            \n"
 		"end                                                                        \n"
 		"function context:update()                                                  \n"
