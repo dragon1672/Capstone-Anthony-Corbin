@@ -77,12 +77,20 @@ int main(int argc, char * argv[]) {
 
 	auto geo = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeCube());
 	auto shader = resourceManager.getDefault<ShaderProgram>();
+	auto sphere = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeSphere(30));
+
+
+
+	sphere->scale(2,1,1);
 
 	auto tmp = gui.addEntity("Bob");
 	auto comp = tmp->addComponent<RenderableComponent>();
 	tmp->getTrans()->pos.z =  -20;
-	comp->whatGeo = geo;
-	comp->howShader = shader;
+	comp->geo = geo;
+	comp->shader = shader;
+	comp = tmp->addComponent<RenderableComponent>();
+	comp->geo = sphere;
+	comp->shader = shader;
 	tmp->addComponent<ScriptComponent>()->script = resourceManager.addScript_src("rotator",//random
 		"function context:start()                            \n"
 		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
@@ -104,16 +112,16 @@ int main(int argc, char * argv[]) {
 
 	auto obj2 = gui.addEntity("Fast Rotator");
 	obj2->addComponent<RenderableComponent>();
-	obj2->getRenderable()->whatGeo = geo;
-	obj2->getRenderable()->howShader = shader;
+	obj2->getRenderable()->geo = geo;
+	obj2->getRenderable()->shader = shader;
 	obj2->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
 	obj2->getTrans()->pos.x = 5;
 	obj2->Parent(tmp);
 
 	auto obj3 = gui.addEntity("Swinger");
 	obj3->addComponent<RenderableComponent>();
-	obj3->getRenderable()->whatGeo = geo;
-	obj3->getRenderable()->howShader = shader;
+	obj3->getRenderable()->geo = geo;
+	obj3->getRenderable()->shader = shader;
 	obj3->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
 	obj3->getTrans()->pos.y = 5;
 	obj3->getTrans()->scale = glm::vec3(.5f,.5f,.5f);
@@ -121,8 +129,8 @@ int main(int argc, char * argv[]) {
 
 	auto obj4 = gui.addEntity("Super Swing");
 	obj4->addComponent<RenderableComponent>();
-	obj4->getRenderable()->whatGeo = geo;
-	obj4->getRenderable()->howShader = shader;
+	obj4->getRenderable()->geo = geo;
+	obj4->getRenderable()->shader = shader;
 	obj4->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
 	obj4->getTrans()->pos.y = 2;
 	obj4->getTrans()->scale = glm::vec3(.2f,.2f,.2f);
