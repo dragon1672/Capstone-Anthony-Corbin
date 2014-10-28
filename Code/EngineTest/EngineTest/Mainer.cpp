@@ -60,7 +60,8 @@ int main(int argc, char * argv[]) {
 		"       self.parent.getTrans().pos().setX(tmp);                             \n"
 		"     end                                                                   \n"
 		"                                                                           \n"
-		"    if(Input.getMouse().getMouseDown(MouseCodes.RIGHT_MOUSE)) then         \n"
+		"    if(Input.getKeyDown(18)) then         \n"
+		"print('yus')\n"
 		"       local x = self.parent.getTrans().rot().getX();                      \n"
 		"       local y = self.parent.getTrans().rot().getY();                      \n"
 		"       x = x + self.MouseSpeed * Input.getMouse().delta().getY()           \n"
@@ -75,23 +76,32 @@ int main(int argc, char * argv[]) {
 		"end                                                                        \n"
 		"");
 
+	resourceManager.WorkingDir("./../resources/");
+
 	auto geo = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeCube());
 	auto shader = resourceManager.getDefault<ShaderProgram>();
 	auto sphere = resourceManager.addMesh("cube",Neumont::ShapeGenerator::makeSphere(30));
+	sphere->initUVData();
 
+	auto dragon  = resourceManager.add2DTexture("dragon","flying_dragon_1.png");
+	auto texture = resourceManager.add2DTexture("dragon","space.png");
 
 
 	sphere->scale(2,1,1);
 
-	auto tmp = gui.addEntity("Bob");
-	auto comp = tmp->addComponent<RenderableComponent>();
-	tmp->getTrans()->pos.z =  -20;
+	EditorGame * game = gui.Game();
+
+	game->AddEntity("Bob");
+	auto comp = game->currentEntity.addComponent<RenderableComponent>();
+	game->currentEntity.getTrans()->pos.z =  -20;
 	comp->geo = geo;
 	comp->shader = shader;
-	comp = tmp->addComponent<RenderableComponent>();
+	comp->material.Diffuse(dragon);
+	comp = game->currentEntity.addComponent<RenderableComponent>();
+	comp->material.Diffuse(texture);
 	comp->geo = sphere;
 	comp->shader = shader;
-	tmp->addComponent<ScriptComponent>()->script = resourceManager.addScript_src("rotator",//random
+	game->currentEntity.addComponent<ScriptComponent>()->script = resourceManager.addScript_src("rotator",//random
 		"function context:start()                            \n"
 		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
 		"    return true                                     \n"
@@ -106,35 +116,35 @@ int main(int argc, char * argv[]) {
 		"");
 	(void)keyBoardController;
 
-	auto cam = gui.addEntity("Cam");
-	cam->addComponent<CameraComponent>();
-	cam->addComponent<ScriptComponent>()->script = keyBoardController;
+	game->AddEntity("Cam");
+	game->currentEntity.addComponent<CameraComponent>();
+	game->currentEntity.addComponent<ScriptComponent>()->script = keyBoardController;
 
-	auto obj2 = gui.addEntity("Fast Rotator");
-	obj2->addComponent<RenderableComponent>();
-	obj2->getRenderable()->geo = geo;
-	obj2->getRenderable()->shader = shader;
-	obj2->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
-	obj2->getTrans()->pos.x = 5;
-	obj2->Parent(tmp);
+	game->AddEntity("Fast Rotator");
+	game->currentEntity.addComponent<RenderableComponent>();
+	game->currentEntity.getRenderable()->geo = geo;
+	game->currentEntity.getRenderable()->shader = shader;
+	game->currentEntity.addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
+	game->currentEntity.getTrans()->pos.x = 5;
+	game->currentEntity.Parent("Bob");
 
-	auto obj3 = gui.addEntity("Swinger");
-	obj3->addComponent<RenderableComponent>();
-	obj3->getRenderable()->geo = geo;
-	obj3->getRenderable()->shader = shader;
-	obj3->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
-	obj3->getTrans()->pos.y = 5;
-	obj3->getTrans()->scale = glm::vec3(.5f,.5f,.5f);
-	obj3->Parent(tmp);
+	game->AddEntity("Swinger");
+	game->currentEntity.addComponent<RenderableComponent>();
+	game->currentEntity.getRenderable()->geo = geo;
+	game->currentEntity.getRenderable()->shader = shader;
+	game->currentEntity.addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
+	game->currentEntity.getTrans()->pos.y = 5;
+	game->currentEntity.getTrans()->scale = glm::vec3(.5f,.5f,.5f);
+	game->currentEntity.Parent("Bob");
 
-	auto obj4 = gui.addEntity("Super Swing");
-	obj4->addComponent<RenderableComponent>();
-	obj4->getRenderable()->geo = geo;
-	obj4->getRenderable()->shader = shader;
-	obj4->addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
-	obj4->getTrans()->pos.y = 2;
-	obj4->getTrans()->scale = glm::vec3(.2f,.2f,.2f);
-	obj4->Parent(obj3);
+	game->AddEntity("Super Swing");
+	game->currentEntity.addComponent<RenderableComponent>();
+	game->currentEntity.getRenderable()->geo = geo;
+	game->currentEntity.getRenderable()->shader = shader;
+	game->currentEntity.addComponent<ScriptComponent>()->script = resourceManager.getFirstScript("rotator");
+	game->currentEntity.getTrans()->pos.y = 2;
+	game->currentEntity.getTrans()->scale = glm::vec3(.2f,.2f,.2f);
+	game->currentEntity.Parent("Swinger");
 
 	gui.init();
 
