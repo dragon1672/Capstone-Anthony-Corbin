@@ -14,8 +14,7 @@
 #include <Engine/DebugTools/DebugMemHeader.h>
 
 int main(int argc, char * argv[]) {
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
+	int ret = -1;
 	QApplication app(argc, argv);
 	GuiSkellyTon gui;
 
@@ -143,5 +142,8 @@ int main(int argc, char * argv[]) {
 
 	gui.show();
 
-	return app.exec();
+	ret = app.exec();
+
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	return ret;
 }
