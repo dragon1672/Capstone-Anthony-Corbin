@@ -11,19 +11,20 @@
 
 #include <ShapeGenerator.h>
 #include <Engine/Systems/Resources/Shaders/DefaultShaders.h>
+#include <Engine/DebugTools/DebugMemHeader.h>
 
 int main(int argc, char * argv[]) {
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	QApplication app(argc, argv);
 	GuiSkellyTon gui;
 
-
-	auto keyBoardController = resourceManager.addScript_src("KeyboardController",
-		"function context:start()                                                   \n"
+	auto keyBoardController = resourceManager.addScript_src(Script::getClassTemplate("KeyboardController",
+		//start
 		"    self.KeySpeed = 9                                                      \n"
 		"    self.MouseSpeed = .5                                                   \n"
-		"    return true                                                            \n"
-		"end                                                                        \n"
-		"function context:update()                                                  \n"
+		"",
+		//update
 		"    if(Input.getKeyDown(KeyCode.R)) then                                   \n"
 		"       local tmp = self.parent.getTrans().pos().getY();                    \n"
 		"       tmp = tmp - Timer.deltaTime() * self.KeySpeed                       \n"
@@ -71,10 +72,7 @@ int main(int argc, char * argv[]) {
 		"    end                                                                    \n"
 		"                                                                           \n"
 		"                                                                           \n"
-		//"    print(self.parent.getTrans().rot().getX());                            \n"
-		"    return true                                                            \n"
-		"end                                                                        \n"
-		"");
+		""));
 
 	resourceManager.WorkingDir("./../resources/");
 
@@ -101,19 +99,14 @@ int main(int argc, char * argv[]) {
 	comp->material.Diffuse(texture);
 	comp->geo = sphere;
 	comp->shader = shader;
-	game->currentEntity.addComponent<ScriptComponent>()->script = resourceManager.addScript_src("rotator",//random
-		"function context:start()                            \n"
+	game->currentEntity.addComponent<ScriptComponent>()->script = resourceManager.addScript_src(Script::getClassTemplate("rotator",//random
 		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
 		"    return true                                     \n"
-		"end                                                 \n"
-		"function context:update()                           \n"
+		"",
 		"    local x = self.parent.getTrans().rot().getX();  \n"
 		"    x = x + Timer.deltaTime() * self.rotSpeed       \n"
 		"    self.parent.getTrans().rot().setX(x);           \n"
-		//"    print(self.parent.getTrans().rot().getX());     \n"
-		"    return true                                     \n"
-		"end                                                 \n"
-		"");
+		""));
 	(void)keyBoardController;
 
 	game->AddEntity("Cam");
@@ -147,8 +140,6 @@ int main(int argc, char * argv[]) {
 	game->currentEntity.Parent("Swinger");
 
 	gui.init();
-
-	//gui.startGameLoop();
 
 	gui.show();
 
