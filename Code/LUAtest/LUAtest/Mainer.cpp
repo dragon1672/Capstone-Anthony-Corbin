@@ -107,7 +107,7 @@ void main() {
 }
 //*/
 //convert glm test
-//*
+/*
 Lua lua;
 bool LoadLua() {
 	lua.LoadStandardLibraries();
@@ -298,7 +298,7 @@ Lua LoadLua() {
 
 Lua lua = LoadLua();
 
-class Vec3 {
+class glm::vec3 {
 public:
 	union {
 		float vals[3];
@@ -374,12 +374,12 @@ public:
 
 namespace wrap {
 
-	class vec3 : public Vec3 {
+	class vec3 : public glm::vec3 {
 	public:
 		vec3() { }
-		vec3(Vec3& that) { set(that); }
-		inline operator Vec3&() { return *reinterpret_cast<Vec3*>(this); }
-		vec3& operator=(const Vec3& that) { set(that); return *this; }
+		vec3(glm::vec3& that) { set(that); }
+		inline operator glm::vec3&() { return *reinterpret_cast<glm::vec3*>(this); }
+		vec3& operator=(const glm::vec3& that) { set(that); return *this; }
 		LUA_VECTOR_MAKE_GETTER_SETTER(X,x);
 		LUA_VECTOR_MAKE_GETTER_SETTER(Y,y);
 		LUA_VECTOR_MAKE_GETTER_SETTER(Z,z);
@@ -387,7 +387,7 @@ namespace wrap {
 		LUA_VECTOR_MAKE_GETTER_SETTER(R,r);
 		LUA_VECTOR_MAKE_GETTER_SETTER(G,g);
 		LUA_VECTOR_MAKE_GETTER_SETTER(B,b);
-		void  set(const Vec3& that) {
+		void  set(const glm::vec3& that) {
 			this->x = that.x;
 			this->y = that.y;
 			this->z = that.z;
@@ -465,7 +465,7 @@ public:
 	
 };
 
-void testingPram(Vec3& in) {
+void testingPram(glm::vec3& in) {
 	in.x = 5;
 }
 
@@ -475,7 +475,7 @@ void main() {
 	//float pie = *t.parent;
 
 	t.parent->transform.pos.x = 5;
-	Vec3 test = t.parent->transform.pos;
+	glm::vec3 test = t.parent->transform.pos;
 	std:: cout << test.x << std::endl;
 
 	testingPram(t.parent->transform.pos);
@@ -506,10 +506,367 @@ void main() {
 	std::cout << t.parent->transform.pos.x << std::endl;
 
 
-	Vec3 pickle;
+	glm::vec3 pickle;
 	pickle.y = 5;
 	t.parent->transform.pos = pickle;
 
-	std::cout << std::endl << std::endl << std::endl << sizeof(Vec3) << std::endl;
+	std::cout << std::endl << std::endl << std::endl << sizeof(glm::vec3) << std::endl;
 }
 //*/
+//inplace new
+
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+#define DEBUG_NEW   new( _CLIENT_BLOCK, __FILE__, __LINE__)
+
+#define new DEBUG_NEW
+
+#endif // _DEBUG
+
+#include <luacppinterface.h>
+
+#pragma region singleton
+
+//Place this in the class header, I prefer the first line
+#define DEFINE_SINGLETON(class_name) \
+	private: static class_name * _instance; \
+	public: static class_name##& getInstance(); \
+	public: static void delInstance(); \
+	private:
+
+//place in a CPP file
+#define IMPLEMENT_SINGLETON(class_name) \
+	class_name * class_name##::_instance = nullptr; \
+	class_name##& class_name##::getInstance() { return *(_instance == nullptr ? _instance = new class_name() : _instance); } \
+	void class_name##::delInstance() { if(_instance != nullptr) delete _instance; _instance = nullptr; }
+
+#define DEFINE_SINGLETON_CAST(class_name,type_cast) \
+	private: static class_name * _instance; \
+	public: static type_cast##& getInstance(); \
+	public: static void delInstance(); \
+	private:
+
+//place in a CPP file
+#define IMPLEMENT_SINGLETON_CAST(class_name,type_cast) \
+	class_name * class_name##::_instance = nullptr; \
+	type_cast##& class_name##::getInstance() { return *(type_cast*)(_instance == nullptr ? _instance = new class_name() : _instance); } \
+	void class_name##::delInstance() { if(_instance == nullptr) delete _instance; _instance = nullptr; }
+
+#pragma endregion
+
+#pragma region masterLua
+#define LUA_INSTANCE MasterLua::getInstance().lua
+
+class MasterLua {
+public:
+	Lua lua;
+	MasterLua();
+	DEFINE_SINGLETON(MasterLua);
+};
+
+#include <string>
+#include <iostream>
+
+//singletons
+
+IMPLEMENT_SINGLETON(MasterLua);
+
+MasterLua::MasterLua()
+{
+	lua.LoadStandardLibraries();
+
+	lua.GetGlobalEnvironment().Set("print",lua.CreateFunction<void(std::string)>([](std::string a) -> void { std::cout << "LUA Print:" << a << std::endl; })); // make and add function
+
+	//load class def
+	lua.RunScript("function class(a,b)local c={}if not b and type(a)=='function'then b=a;a=nil elseif type(a)=='table'then for d,e in pairs(a)do c[d]=e end;c._base=a end;"
+		"c.__index=c;local f={}f.__call=function(g,...)local h={}setmetatable(h,c)if b then b(h,...)else if a and a.init then a.init(h,...)end end;return h end;c.init=b;"
+		"c.is_a=function(i,j)local k=getmetatable(i)while k do if k==j then return true end;k=k._base end;return false end;setmetatable(c,f)return c end");
+}
+
+
+#pragma endregion
+
+
+#pragma region luaDefines
+
+
+//------------------------------------------Notes------------------------------------------
+// These functions are made to make it easier to bind complex objects in LUA
+// ASSUMES THAT: operator LuaUserdata<type> has been created for each object
+// all conversions happen by casting
+//
+// THAT MEANS
+// you should use the function generators at a class level
+// you should use the binding defines in operator LuaUserdata<type> function
+//-----------------------------------------------------------------------------------------
+
+#include <iostream>
+
+
+
+//----------------core tools-----------------
+// Used to make hacks and string magic work
+//-------------------------------------------
+//makes pram a string returning "x"
+#define LUA_STRING(x) #x
+#define LUA_GLEW(a,b) LUA_STRING(a##b)
+
+
+
+#define LUA_OBJECT(class_name)									\
+	struct LUA_HOLDER {											\
+		LuaUserdata<class_name> val;							\
+		LUA_HOLDER(LuaUserdata<class_name> init) : val(init) {}	\
+	};															\
+	LUA_HOLDER * LUA_HOLDER_INSTANCE
+
+#define LUA_OBJECT_START(class_name) \
+	LUA_HOLDER_INSTANCE = nullptr
+
+#define LUA_OBJECT_END(class_name) \
+	if(LUA_HOLDER_INSTANCE!=nullptr) { delete LUA_HOLDER_INSTANCE; std::cout << "del lua " << #class_name << std::endl; }
+
+#define MAKE_DEFAULT_LUA_CONST_AND_DEST(class_name) class_name##() { LUA_OBJECT_START(class_name); } ~##class_name##() { LUA_OBJECT_END(class_name); }
+
+//This creates a LuaUserData for your class
+//it overrides the default destructor that calls delete since we are pointing to "this"
+#define MAKE_LUA_INSTANCE_RET(class_name,Userdata_var_name)\
+	if(LUA_HOLDER_INSTANCE == nullptr) { LUA_HOLDER_INSTANCE = new LUA_HOLDER(LUA_INSTANCE.CreateUserdata<class_name>((##class_name##*)this,[](class_name*){}));} else { return LUA_HOLDER_INSTANCE->val; } \
+	LuaUserdata<class_name>& Userdata_var_name = LUA_HOLDER_INSTANCE->val;
+
+
+
+//---------------------------overloading functions with lua counterparts---------------------------
+// the following defines create functions that cast LuaUserdata version of variables and functions
+// example:
+// creates LuaUserdata<varType> get_lua_myAwesomeVar() { [casting magic] }
+//-------------------------------------------------------------------------------------------------
+
+//creates a getX() and setX(float)
+#define LUA_VECTOR_MAKE_GETTER_SETTER(Uppercase,LowerCase)\
+	inline float get##Uppercase##() { return LowerCase; }                 \
+	inline void  set##Uppercase##(float LowerCase) { this->LowerCase = LowerCase; }
+
+//creates LuaUserData function for pointer
+//it will de-ref and cast as LuaUserdata
+#define GET_LUA_VER_PTR(var_type,real_var) LuaUserdata<var_type>get_lua_##real_var##() { return (LuaUserdata<var_type>)(*real_var); }
+//casts and returns LuaUserdata version
+#define GET_LUA_VER(var_type,real_var) LuaUserdata<var_type>get_lua_##real_var##() { return (LuaUserdata<var_type>)real_var; }
+
+//calls function de-refs and casts as LuaUserdata
+#define LUA_GET_FUN_PTR(var_type,fun_name) LuaUserdata<##var_type##> fun_name##_LUA() { return (LuaUserdata<##var_type##>)*##fun_name##(); }
+
+#define LUA_GET_FUN(var_type,fun_name) LuaUserdata<##var_type##> fun_name##_LUA() { return (LuaUserdata<##var_type##>)##fun_name##(); }
+
+
+
+//---------------------------Bind overloaded functions into lua---------------------------
+// the following defines bind into lua using original variable names
+// example:
+// creates bind("myAwesomeVar",get_lua_myAwesomeVar)
+// call in lua: myAwesomeVar()
+//----------------------------------------------------------------------------------------
+
+
+//binds get_lua_var into lua
+#define BIND_LUA_VER(class_name,Userdata_var_name,real_var) Userdata_var_name.Bind(#real_var,  &##class_name##::get_lua_##real_var  )
+
+//binds getX and setX in LUA
+#define LUA_VECTOR_BIND(vec_type,Userdata_var_name,UppercaseLetter)\
+	Userdata_var_name.Bind(LUA_GLEW(set,UppercaseLetter),&##vec_type##::set##UppercaseLetter##);\
+	Userdata_var_name.Bind(LUA_GLEW(get,UppercaseLetter),&##vec_type##::get##UppercaseLetter##)
+//binds function 
+#define LUA_BIND_FUN(class_name,Userdata_var_name,fun_name) Userdata_var_name.Bind(#fun_name,&##class_name##::##fun_name##_LUA)
+
+#pragma endregion
+
+namespace glm {
+	class vec3 {
+	public:
+		union {
+			float vals[3];
+			struct {
+				float r;
+				float g;
+				float b;
+			};
+			struct {
+				float x;
+				float y;
+				float z;
+			};
+		};
+	};
+}
+
+namespace wrap {
+
+	class vec3 : public glm::vec3 {
+		LUA_OBJECT(vec3);
+	public:
+		vec3() { LUA_OBJECT_START(vec3); }
+		vec3(glm::vec3& that) { set(that); LUA_OBJECT_START(vec3); }
+		~vec3() { LUA_OBJECT_END(vec3); }
+		inline operator glm::vec3&() { return *reinterpret_cast<glm::vec3*>(this); }
+		vec3& operator=(const glm::vec3& that) { set(that); return *this; }
+		LUA_VECTOR_MAKE_GETTER_SETTER(X,x);
+		LUA_VECTOR_MAKE_GETTER_SETTER(Y,y);
+		LUA_VECTOR_MAKE_GETTER_SETTER(Z,z);
+
+		LUA_VECTOR_MAKE_GETTER_SETTER(R,r);
+		LUA_VECTOR_MAKE_GETTER_SETTER(G,g);
+		LUA_VECTOR_MAKE_GETTER_SETTER(B,b);
+		void  set(const glm::vec3& that) {
+			this->x = that.x;
+			this->y = that.y;
+			this->z = that.z;
+		}
+		void  set(float x, float y, float z, float w) {
+			this->x = x;
+			this->y = y;
+			this->z = z;
+		}
+
+		inline operator LuaUserdata<vec3>&() {
+			MAKE_LUA_INSTANCE_RET(vec3,ret);
+			LUA_VECTOR_BIND(vec3,ret,X);
+			LUA_VECTOR_BIND(vec3,ret,Y);
+			LUA_VECTOR_BIND(vec3,ret,Z);
+
+			LUA_VECTOR_BIND(vec3,ret,R);
+			LUA_VECTOR_BIND(vec3,ret,G);
+			LUA_VECTOR_BIND(vec3,ret,B);
+
+			return ret;
+		}
+	};
+}
+
+class MatrixInfo {
+	LUA_OBJECT(MatrixInfo);
+public:
+	MatrixInfo() { LUA_OBJECT_START(MatrixInfo); }
+	~MatrixInfo() { LUA_OBJECT_END(MatrixInfo); }
+	wrap::vec3 pos;
+	wrap::vec3 scale;
+	wrap::vec3 rot;
+
+	GET_LUA_VER(wrap::vec3,pos  );
+	GET_LUA_VER(wrap::vec3,scale);
+	GET_LUA_VER(wrap::vec3,rot  );
+
+	inline operator LuaUserdata<MatrixInfo>() {
+		MAKE_LUA_INSTANCE_RET(MatrixInfo,ret);
+
+		BIND_LUA_VER(MatrixInfo,ret,pos  ); // myObj.pos()
+		BIND_LUA_VER(MatrixInfo,ret,scale);
+		BIND_LUA_VER(MatrixInfo,ret,rot  );
+
+		return ret;
+	}
+};
+
+class Entity {
+	LUA_OBJECT(Entity);
+public:
+	MAKE_DEFAULT_LUA_CONST_AND_DEST(Entity);
+	MatrixInfo transform;
+	GET_LUA_VER(MatrixInfo,transform);
+
+	MatrixInfo * getMat() {
+		return &transform;
+	}
+
+
+	inline operator LuaUserdata<Entity>&() {
+		MAKE_LUA_INSTANCE_RET(Entity,ret);
+		BIND_LUA_VER(Entity,ret,transform);
+		return ret;
+	}
+
+};
+class Component {
+	LUA_OBJECT(Component);
+public:
+	MAKE_DEFAULT_LUA_CONST_AND_DEST(Component);
+
+	Entity * parent;
+	GET_LUA_VER_PTR(Entity,parent);
+
+	inline operator LuaUserdata<Component>&() {
+		MAKE_LUA_INSTANCE_RET(Component,ret);
+		BIND_LUA_VER(Component,ret,parent);
+		return ret;
+	}
+
+};
+
+void testingPram(glm::vec3& in) {
+	in.x = 5;
+}
+
+void runLua(std::string toRun) {
+	std::string err = LUA_INSTANCE.RunScript(toRun);
+	if(err != Lua::NO_ERRORS) {
+		std::cout << err << std::endl;
+	}
+}
+
+
+void main() {
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	LUA_INSTANCE;
+	{
+		Component t;
+		Entity e;
+		t.parent = &e;
+
+		t.parent->transform.pos.x = 5;
+		glm::vec3 test = t.parent->transform.pos;
+		std::cout << test.x << std::endl;
+
+		testingPram(t.parent->transform.pos);
+
+		std::cout << "+-----------+" << std::endl;
+		std::cout << "| Lua Start |" << std::endl;
+		std::cout << "+-----------+" << std::endl;
+		LUA_INSTANCE.GetGlobalEnvironment().Set("t",(LuaUserdata<Entity>)*t.parent);
+
+		runLua("a = 1;");
+		runLua("b = a + 1;");
+		runLua("print(a+b);");
+
+		for (int i = 0; i < 10; i++) {
+			auto err = LUA_INSTANCE.RunScript(""
+				//"print(t.transform().pos().getX());                  \n"
+				"t.transform().pos().setX(6);                  \n"
+				//"print(t.transform().pos().getX());                  \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"                                        \n"
+				"");
+			//std::cout << "+-------------------" << std::endl;
+			//std::cout << "| Lua End: " << err << std::endl;
+			//std::cout << "+-------------------" << std::endl;
+			//std::cout << t.parent->transform.pos.x << std::endl;
+		}
+		//*/
+
+		glm::vec3 pickle;
+		pickle.y = 5;
+		t.parent->transform.pos = pickle;
+
+		MasterLua::delInstance();
+	}
+
+	//std::cout << std::endl << std::endl << std::endl << sizeof(glm::vec3) << std::endl;
+}
