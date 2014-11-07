@@ -64,7 +64,7 @@ int main(int argc, char * argv[]) {
 		"       local x = self.parent.getTrans().rot().getX();                      \n"
 		"       local y = self.parent.getTrans().rot().getY();                      \n"
 		"       x = x + self.MouseSpeed * Input.getMouse().delta().getY()           \n"
-		"       y = y + self.MouseSpeed * Input.getMouse().delta().getX()           \n"
+		"       y = y - self.MouseSpeed * Input.getMouse().delta().getX()           \n"
 		"       self.parent.getTrans().rot().setX(x);                               \n"
 		"       self.parent.getTrans().rot().setY(y);                               \n"
 		"    end                                                                    \n"
@@ -85,6 +85,7 @@ int main(int argc, char * argv[]) {
 
 	game->AddEntity("Bob");
 	auto comp = game->currentEntity.addComponent<RenderableComponent>();
+	game->currentEntity.getTrans()->pos.z =  20;
 	game->currentEntity.getTrans()->pos.z =  -20;
 	comp->geo = resourceManager.getFirstMesh("NU_Cube");
 	comp->shader = shader;
