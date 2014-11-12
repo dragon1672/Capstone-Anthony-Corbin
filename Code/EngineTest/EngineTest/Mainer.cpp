@@ -13,7 +13,10 @@
 #include <Engine/Systems/Resources/Shaders/DefaultShaders.h>
 #include <Engine/DebugTools/DebugMemHeader.h>
 
+#include <Engine/IO/FileIO.h>
+
 int main(int argc, char * argv[]) {
+
 	int ret = -1;
 	QApplication app(argc, argv);
 	GuiSkellyTon gui;
@@ -100,7 +103,8 @@ int main(int argc, char * argv[]) {
 		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
 		"    return true                                     \n"
 		"",
-		"    local x = self.parent.getTrans().rot().getX();  \n"
+		"    local x = self.parent.GetScript('rotator').parent.getTrans().rot().getX();  \n"
+		//"    local x = self.parent.getTrans().rot().getX();  \n"
 		"    x = x + Timer.deltaTime() * self.rotSpeed       \n"
 		"    self.parent.getTrans().rot().setX(x);           \n"
 		"")));
