@@ -90,15 +90,15 @@ int main(int argc, char * argv[]) {
 	auto comp = game->currentEntity.addComponent<RenderableComponent>();
 	game->currentEntity.getTrans()->pos.z =  20;
 	game->currentEntity.getTrans()->pos.z =  -20;
-	comp->geo = resourceManager.getFirstMesh("NU_Cube");
-	comp->shader = shader;
+	comp->Geo(resourceManager.getFirstMesh("NU_Cube"));
+	comp->Shader(shader);
 	comp->material.Diffuse(dragon);
 	comp = game->currentEntity.addComponent<RenderableComponent>();
 	comp->material.Diffuse(texture);
 	auto sphere = resourceManager.duplicate(resourceManager.getFirstMesh("NU_Sphere"));
 	sphere->scale(2,1,1);
-	comp->geo = sphere;
-	comp->shader = shader;
+	comp->Geo(sphere);
+	comp->Shader(shader);
 	game->currentEntity.addComponent<ScriptComponent>()->myScript(resourceManager.addScript_src(Script::getClassTemplate("rotator",//random
 		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
 		"    return true                                     \n"
@@ -116,16 +116,16 @@ int main(int argc, char * argv[]) {
 
 	game->AddEntity("Fast Rotator");
 	game->currentEntity.addComponent<RenderableComponent>();
-	game->currentEntity.getRenderable()->geo = resourceManager.getFirstMesh("NU_Sphere");
-	game->currentEntity.getRenderable()->shader = shader;
+	game->currentEntity.getRenderable()->Geo(resourceManager.getFirstMesh("NU_Sphere"));
+	game->currentEntity.getRenderable()->Shader(shader);
 	game->currentEntity.addComponent<ScriptComponent>()->myScript(resourceManager.getFirstScript("rotator"));
 	game->currentEntity.getTrans()->pos.x = 5;
 	game->currentEntity.Parent("Bob");
 
 	game->AddEntity("Swinger");
 	game->currentEntity.addComponent<RenderableComponent>();
-	game->currentEntity.getRenderable()->geo = resourceManager.getFirstMesh("NU_Arrow");
-	game->currentEntity.getRenderable()->shader = shader;
+	game->currentEntity.getRenderable()->Geo(resourceManager.getFirstMesh("NU_Arrow"));
+	game->currentEntity.getRenderable()->Shader(shader);
 	game->currentEntity.addComponent<ScriptComponent>()->myScript(resourceManager.getFirstScript("rotator"));
 	game->currentEntity.getTrans()->pos.y = 5;
 	game->currentEntity.getTrans()->scale = glm::vec3(.5f,.5f,.5f);
@@ -133,8 +133,8 @@ int main(int argc, char * argv[]) {
 
 	game->AddEntity("Super Swing");
 	game->currentEntity.addComponent<RenderableComponent>();
-	game->currentEntity.getRenderable()->geo = resourceManager.getFirstMesh("NU_Plane");
-	game->currentEntity.getRenderable()->shader = shader;
+	game->currentEntity.getRenderable()->Geo(resourceManager.getFirstMesh("NU_Plane"));
+	game->currentEntity.getRenderable()->Shader(shader);
 	game->currentEntity.addComponent<ScriptComponent>()->myScript(resourceManager.getFirstScript("rotator"));
 	game->currentEntity.getTrans()->pos.y = 2;
 	game->currentEntity.getTrans()->scale = glm::vec3(.2f,.2f,.2f);
