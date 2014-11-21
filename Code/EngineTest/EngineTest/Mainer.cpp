@@ -13,10 +13,11 @@
 #include <Engine/Systems/Resources/Shaders/DefaultShaders.h>
 #include <Engine/DebugTools/DebugMemHeader.h>
 
+#include <Engine/Systems/GameObjectManager.h>
+
 #include <Engine/IO/FileIO.h>
 
 int main(int argc, char * argv[]) {
-
 	int ret = -1;
 	QApplication app(argc, argv);
 	GuiSkellyTon gui;
@@ -101,12 +102,19 @@ int main(int argc, char * argv[]) {
 	comp->Shader(shader);
 	game->currentEntity.addComponent<ScriptComponent>()->myScript(resourceManager.addScript_src(Script::getClassTemplate("rotator",//random
 		"    self.rotSpeed = Random.RangeFloat(10,300);      \n"
+		"    print('start')                                  \n"
+		"    self.printInUpdate = true;                      \n"
+		"    self.parent.Broadcast('update');                \n"
+		"    self.printInUpdate = false;                     \n"
+		"    print('start post Broad')                       \n"
 		"    return true                                     \n"
 		"",
 		"    local x = self.parent.GetScript('rotator').parent.getTrans().rot().getX();  \n"
-		//"    local x = self.parent.getTrans().rot().getX();  \n"
+		"    local x = self.parent.getTrans().rot().getX();  \n"
 		"    x = x + Timer.deltaTime() * self.rotSpeed       \n"
 		"    self.parent.getTrans().rot().setX(x);           \n"
+		"    if(self.printInUpdate) then print('update'); end \n"
+		"    GameManager.getEntityFromName('Bob').getTrans().rot().setY(50)\n          "
 		"")));
 	(void)keyBoardController;
 
@@ -139,6 +147,10 @@ int main(int argc, char * argv[]) {
 	game->currentEntity.getTrans()->pos.y = 2;
 	game->currentEntity.getTrans()->scale = glm::vec3(.2f,.2f,.2f);
 	game->currentEntity.Parent("Swinger");
+
+
+	game->currentEntity.SetCurrent(gameManager.getEntity("Bob"));
+	game->currentEntity.DuplicateCurrent();
 
 	gui.init();
 
