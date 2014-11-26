@@ -1,0 +1,116 @@
+--class Board
+--above line is required as the first line
+
+Board = class(function(self,boardWidth,boardHeight)
+  self:initBoard(boardWidth,boardHeight);
+end);
+function Board:initBoard(boardWidth,boardHeight)
+   print('board init called')
+  self.width = boardWidth;
+  self.height = boardHeight
+  self._board = {} -- makin a board
+  for i=1,self.width do
+    self._board[i] = {}
+  end
+  self:clear();
+end
+
+
+function Board:get (x,y)
+  if(  not between(x,1,self.width)
+    or not between(y,1,self.height)) then
+      return -1;
+  end
+  return self._board[x][y];
+end;
+function Board:clear()
+  for i=1,self.width do
+      for j=1,self.height do
+        self._board[i][j] = 0
+      end
+    end
+end
+
+
+function Board:set(x,y,val)
+  self._board[x][y] = val;
+end
+function Board:validMove(col)
+  if(col <= 0) then return false; end
+  for y=0,self.height do
+    if(self:get(col,y)==0) then
+      return true;
+    end
+  end
+  return false;
+end
+
+
+
+function Board:winningMove(x,y)
+  local player = self:get(x,y);
+  local offset = List();
+  offset:push(Vector2( 1, 0));
+  offset:push(Vector2( 0, 1));
+  offset:push(Vector2( 1, 1));
+  offset:push(Vector2( 1,-1));
+
+  for i=1,offset:getSize() do
+    local vec = offset:get(i)
+    local count = 0;
+    for i=-3,3 do
+      local posX = x + i * vec.x;
+      local posY = y + i * vec.y;
+      local tmp = self:get(posX,posY);
+      if (self:get(posX,posY)==player) then
+        count = count + 1
+      else
+        count = 0
+      end
+      if(count == 4) then
+        return true;
+      end;
+    end
+  end
+  return false;
+end
+function Board:place(col,player)
+  for y=0,self.height do
+    if(self:get(col,y)==0) then
+      self:set(col,y,player);
+      self.complete = self:winningMove(col,y);
+      return Vector2(col,y);
+    end
+  end
+  self.complete = false;
+  return Vector2(-1,-1);
+end
+
+
+
+function Board:toString()
+  local ret = '';
+    for j=self.height,1,-1 do
+      for i=1,self.width do
+        if(self._board[i][j] == 1) then
+          ret = ret .. 'X';
+        elseif(self._board[i][j] == 2) then
+          ret = ret .. '0';
+        else
+          ret = ret .. ' ';
+        end
+        if(i~=self.width) then ret = ret ..'|' end
+      end
+      ret = ret .. '\n';
+    end
+    for i=1,self.width do
+      ret = ret .. '-';
+      if(i~=self.width) then ret = ret ..'+' end
+    end
+    ret = ret .. '\n';
+    for i=1,self.width do
+      ret = ret .. i;
+      if(i~=self.width) then ret = ret ..'|' end
+    end
+    return ret;
+end

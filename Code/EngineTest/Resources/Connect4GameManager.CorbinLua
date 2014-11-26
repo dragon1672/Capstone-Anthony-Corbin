@@ -1,0 +1,97 @@
+--class Connect4GameManager
+--above line is required as the first line
+
+Connect4GameManager = class(ScriptComponent);                                             
+--available functions
+--start,earlyUpdate,update,lateUpdate
+
+
+function Connect4GameManager:start()
+  self._board = Board(7,6);
+  self._playerRenderables = {};
+  self._playerRenderables[1] = {};
+  self._playerRenderables[1].gamePiece = GameManager.getEntityFromName('Connect4PieceP1');
+  self._playerRenderables[1].gamePiece.SetActive(false)
+  self._playerRenderables[1]._renderables = List();
+  self._playerRenderables[1]._unusedRenderables = List();
+  self._playerRenderables[2] = {};
+  self._playerRenderables[2].gamePiece = GameManager.getEntityFromName('Connect4PieceP2');
+  self._playerRenderables[2].gamePiece.SetActive(false)
+  self._playerRenderables[2]._renderables = List();
+  self._playerRenderables[2]._unusedRenderables = List();
+  self:reset();
+
+end
+
+function Connect4GameManager:update()
+     local answer = -1;
+  if(Input.getKeyClicked(KeyCode.ZERO))  then answer = 0; end;
+  if(Input.getKeyClicked(KeyCode.ONE))   then answer = 1; end;
+  if(Input.getKeyClicked(KeyCode.TWO))   then answer = 2; end;
+  if(Input.getKeyClicked(KeyCode.THREE)) then answer = 3; end;
+  if(Input.getKeyClicked(KeyCode.FOUR))  then answer = 4; end;
+  if(Input.getKeyClicked(KeyCode.FIVE))  then answer = 5; end;
+  if(Input.getKeyClicked(KeyCode.SIX))   then answer = 6; end;
+  if(Input.getKeyClicked(KeyCode.SEVEN)) then answer = 7; end;
+  if(Input.getKeyClicked(KeyCode.EIGHT)) then answer = 8; end;
+  if(Input.getKeyClicked(KeyCode.NINE))  then answer = 9; end;
+
+  if(self._board:validMove(answer)) then
+print(answer .. ' was valid')
+    local pos = self._board:place(answer,self.currentPlayer);
+
+    --update visuals
+    local tmp = self:getGamePiece(self.currentPlayer);
+    setVector3(tmp.getTrans().pos(),pos);
+
+    if(self._board.complete) then self:win() end
+    if(self.currentPlayer == 1) then self.currentPlayer = 2 else self.currentPlayer = 1 end
+  end
+
+end
+
+function Connect4GameManager:reset()
+  --reset renderables
+  self.currentPlayer = 1;
+  self._board:clear();
+  self.disabled = false;
+  while self._playerRenderables[1]._renderables:getSize() > 0 do
+    local tmp = self._playerRenderables[1]._renderables:popBack();
+    tmp.SetActive(false);
+    self._playerRenderables[1]._unusedRenderables:push(tmp);
+  end
+  while self._playerRenderables[2]._renderables:getSize() > 0 do
+    local tmp = self._playerRenderables[2]._renderables:popBack();
+    tmp.SetActive(false);
+    self._playerRenderables[2]._unusedRenderables:push(tmp);
+  end
+end
+
+function Connect4GameManager:win()
+  self:reset();
+end
+
+function Connect4GameManager:over()
+  return self.disabled;
+end
+
+function Connect4GameManager:validMove(col)
+  return self._board:validMove(col);
+end
+
+function Connect4GameManager:getGamePiece(player)
+  if(self._playerRenderables[player]._unusedRenderables:getSize() == 0) then
+    local tmp = self._playerRenderables[player].gamePiece.Clone();
+    tmp.SetParent(self.parent.getID());
+    tmp.SetActive(false);
+    self._playerRenderables[player]._unusedRenderables:push(tmp);
+  end
+  local ret = self._playerRenderables[player]._unusedRenderables:popBack();
+  self._playerRenderables[player]._renderables:push(ret);
+  ret.SetActive(true);
+  return ret;
+end
+
+function Connect4GameManager:printBoard()
+  print(self._board:toString());
+end
