@@ -24,7 +24,7 @@ function Connect4GameManager:start()
 end
 
 function Connect4GameManager:update()
-     local answer = -1;
+  local answer = -1;
   if(Input.getKeyClicked(KeyCode.ZERO))  then answer = 0; end;
   if(Input.getKeyClicked(KeyCode.ONE))   then answer = 1; end;
   if(Input.getKeyClicked(KeyCode.TWO))   then answer = 2; end;
@@ -37,7 +37,7 @@ function Connect4GameManager:update()
   if(Input.getKeyClicked(KeyCode.NINE))  then answer = 9; end;
 
   if(self._board:validMove(answer)) then
-print(answer .. ' was valid')
+    print('player ' .. self.currentPlayer .. ' chose ' .. answer);
     local pos = self._board:place(answer,self.currentPlayer);
 
     --update visuals
